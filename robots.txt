@@ -1,4 +1,4 @@
 User-agent: *
 Disallow: 
 
-Sitemap: http://zTrix.github.io/sitemap.xml 
+Sitemap: http://blog.ztrix.me/sitemap.xml 
