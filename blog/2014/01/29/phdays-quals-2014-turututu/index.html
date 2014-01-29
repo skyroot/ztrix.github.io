@@ -109,6 +109,9 @@
 
 <p>So it&rsquo;s time to dive into assembly.</p>
 
+<!-- more -->
+
+
 <p>From the string constant <code>Sorry, waybe next time...</code>(typo here, LOL!) printed by task.exe, we xref to <code>0x402bf0</code>, and at <code>0x402dda</code>, it seems that some check function is called and then print <code>Gratz!</code> or <code>Sorry, waybe next time...</code>(LOL again!) according to its return value.</p>
 
 <p>Deeper diving reaveals that the check function will invoke a list of functions to check the input value, and whenever something went wrong, the return value would be fail.</p>

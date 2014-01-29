@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Reverse Engineering | From Zero To X]]></title>
   <link href="http://blog.ztrix.me/blog/categories/reverse-engineering/atom.xml" rel="self"/>
   <link href="http://blog.ztrix.me/"/>
-  <updated>2014-01-29T15:58:25+08:00</updated>
+  <updated>2014-01-29T16:02:57+08:00</updated>
   <id>http://blog.ztrix.me/</id>
   <author>
     <name><![CDATA[zTrix]]></name>
@@ -23,6 +23,9 @@
 <p>I know little about <a href="http://en.wikipedia.org/wiki/OCaml">ocaml</a>, so at first I searched a lot trying to get some bytecode or decompiler stuff, or some dedicated debugger for <a href="http://en.wikipedia.org/wiki/OCaml">ocaml</a>, but none of these tools could be found.</p>
 
 <p>So it&rsquo;s time to dive into assembly.</p>
+
+<!-- more -->
+
 
 <p>From the string constant <code>Sorry, waybe next time...</code>(typo here, LOL!) printed by task.exe, we xref to <code>0x402bf0</code>, and at <code>0x402dda</code>, it seems that some check function is called and then print <code>Gratz!</code> or <code>Sorry, waybe next time...</code>(LOL again!) according to its return value.</p>
 
