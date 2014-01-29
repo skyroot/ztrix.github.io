@@ -4,7 +4,7 @@
   <title><![CDATA[From Zero To X]]></title>
   <link href="http://blog.ztrix.me/atom.xml" rel="self"/>
   <link href="http://blog.ztrix.me/"/>
-  <updated>2014-01-28T22:52:31+08:00</updated>
+  <updated>2014-01-29T15:58:25+08:00</updated>
   <id>http://blog.ztrix.me/</id>
   <author>
     <name><![CDATA[zTrix]]></name>
@@ -12,6 +12,194 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[PHDays IV Quals 2014 - Turututu]]></title>
+    <link href="http://blog.ztrix.me/blog/2014/01/29/phdays-quals-2014-turututu/"/>
+    <updated>2014-01-29T11:13:35+08:00</updated>
+    <id>http://blog.ztrix.me/blog/2014/01/29/phdays-quals-2014-turututu</id>
+    <content type="html"><![CDATA[<p>turututu is an ELF 64-bit executable, after some investigation, it&rsquo;s easy to find out that the task.exe is a native binary generated using <code>ocamlopt</code>.</p>
+
+<p>I know little about <a href="http://en.wikipedia.org/wiki/OCaml">ocaml</a>, so at first I searched a lot trying to get some bytecode or decompiler stuff, or some dedicated debugger for <a href="http://en.wikipedia.org/wiki/OCaml">ocaml</a>, but none of these tools could be found.</p>
+
+<p>So it&rsquo;s time to dive into assembly.</p>
+
+<p>From the string constant <code>Sorry, waybe next time...</code>(typo here, LOL!) printed by task.exe, we xref to <code>0x402bf0</code>, and at <code>0x402dda</code>, it seems that some check function is called and then print <code>Gratz!</code> or <code>Sorry, waybe next time...</code>(LOL again!) according to its return value.</p>
+
+<p>Deeper diving reaveals that the check function will invoke a list of functions to check the input value, and whenever something went wrong, the return value would be fail.</p>
+
+<ul>
+<li>The first one is at <code>0x4024a0</code>, which is a simple function who parse the arg to a ocaml list of chars.</li>
+<li>The second one is at <code>0x402520</code>, which is the check length function. From here we know the list size should be 16.</li>
+<li>The third one is at <code>0x402790</code>, ah, a magic string <code>The sky above the port was the color of...</code> can be seen here, it seems that some permutation operations are done here, and will always give positive return value, so just leave it here for later analysis.</li>
+<li>The fourth one is at <code>0x402870</code>, this is the real check, and will return false if the check fails.</li>
+<li>And there are function 5, 6, 7, will check after function 4. Leave them for later analysis.</li>
+</ul>
+
+
+<p>Ok now we know that we should run the program with a string as argument of 16 bytes, and if the string match something, the <code>task.exe</code> will print happy result. And it&rsquo;s very likely that the input argument should be the flag.</p>
+
+<p>There are a lot of ocaml library functions out there without any signature, making it very hard to read assembly. So I compiled a <code>helloworld</code> program using <code>ocamlopt -g hw.ml</code>, and by comparing the hex code, I can identify a lot of important ocaml functions like <code>camlList__map</code>, <code>camlList_c_call</code>, <code>camlList__combine</code>, <code>caml_equal</code>.</p>
+
+<p>But it&rsquo;s still very hard to figure out the actual behavior under the assembly code. Now it&rsquo;s time for the <a href="http://github.com/longld/peda">peda</a> weapon.</p>
+
+<p>I wrote a small piece of code in <a href="http://github.com/longld/peda">peda</a> to print ocaml list values</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="k">def</span> <span class="nf">ocamlist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">arg</span><span class="p">):</span>
+</span><span class='line'>    <span class="sd">&quot;&quot;&quot;</span>
+</span><span class='line'><span class="sd">    dump ocaml list</span>
+</span><span class='line'><span class="sd">    Usage:</span>
+</span><span class='line'><span class="sd">        ocamlist register</span>
+</span><span class='line'><span class="sd">        ocamlist address</span>
+</span><span class='line'><span class="sd">    &quot;&quot;&quot;</span>
+</span><span class='line'>    <span class="p">(</span><span class="n">address</span><span class="p">,)</span> <span class="o">=</span> <span class="n">normalize_argv</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">address</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+</span><span class='line'>        <span class="bp">self</span><span class="o">.</span><span class="n">_missing_argument</span><span class="p">()</span>
+</span><span class='line'>    <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">address</span><span class="p">)</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;r&quot;</span><span class="p">):</span>
+</span><span class='line'>        <span class="n">address</span> <span class="o">=</span> <span class="n">peda</span><span class="o">.</span><span class="n">getreg</span><span class="p">(</span><span class="n">arg</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</span><span class='line'>    <span class="k">else</span><span class="p">:</span>
+</span><span class='line'>        <span class="n">address</span> <span class="o">=</span> <span class="n">to_int</span><span class="p">(</span><span class="n">arg</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</span><span class='line'>    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span class='line'>    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">):</span>
+</span><span class='line'>        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">peda</span><span class="o">.</span><span class="n">read_int</span><span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+</span><span class='line'>        <span class="n">address</span> <span class="o">=</span> <span class="n">peda</span><span class="o">.</span><span class="n">read_int</span><span class="p">(</span><span class="n">address</span><span class="o">+</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+</span><span class='line'>        <span class="k">if</span> <span class="n">address</span> <span class="o">&lt;</span> <span class="mh">0x1000</span><span class="p">:</span>
+</span><span class='line'>            <span class="k">break</span>
+</span><span class='line'>    <span class="n">msg</span><span class="p">(</span><span class="s">&#39;ocamllist: (</span><span class="si">%d</span><span class="s">) </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">),</span> <span class="nb">repr</span><span class="p">(</span><span class="n">result</span><span class="p">)))</span>
+</span><span class='line'>    <span class="k">return</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now fire! gdbinit here</p>
+
+<pre><code>file task.exe
+b *0x402baa
+r 1234567890ABCDEF
+</code></pre>
+
+<p><code>continue</code> at gdb to skip the first function. Then <code>ocamlist $rax</code></p>
+
+<pre><code>Breakpoint 1, 0x0000000000402baa in ?? ()
+gdb-peda$ ocamlist $rax
+ocamllist: (16) [99, 101, 103, 105, 107, 109, 111, 113, 115, 97, 131, 133, 135, 137, 139, 141]
+</code></pre>
+
+<p>Oops, why should ocaml put <code>2x+1</code> value in the list. Never mind.</p>
+
+<p><code>continue</code> two times to skip the length check. Then <code>ocamlist $rax</code></p>
+
+<pre><code>Breakpoint 1, 0x0000000000402baa in ?? ()
+gdb-peda$ ocamlist $rax
+ocamllist: (16) [101, 135, 115, 111, 97, 141, 139, 99, 137, 133, 113, 103, 109, 107, 105, 131]
+</code></pre>
+
+<p>Now we have the permutation table. :)</p>
+
+<p><code>ni</code> into <code>0x402870</code>, and <code>ni</code> to <code>0x402888</code>, <code>ocamlist $rax</code></p>
+
+<pre><code>gdb-peda$ ocamlist $rax
+ocamllist: (8) [137, 133, 113, 103, 109, 107, 105, 131]
+</code></pre>
+
+<p>so <code>0x4025e0</code> cut the list from index 8, return the second part. <code>ni</code> to <code>0x40289d</code></p>
+
+<pre><code>0x000000000040289d in ?? ()
+gdb-peda$ ocamlist $rax
+ocamllist: (8) [101, 135, 115, 111, 97, 141, 139, 99]
+</code></pre>
+
+<p>we got the first half. Then at <code>0x4028a1</code>, we can identify the function called to be <code>camlList__combine</code> by comparing hex code, we can also know the function <code>camlList__map</code> called at <code>0x4028b0</code>, <code>caml_equal</code> loaded at <code>0x4028bf</code>, and the constant list at <code>0x4028b5</code> is</p>
+
+<pre><code>gdb-peda$ ocamlist 0x621c20
+ocamllist: (8) [591, 599, 687, 663, 475, 687, 687, 609]
+</code></pre>
+
+<p>So, the logic here become evident. if written in python, it should be sth like this</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="n">combined</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="n">lst</span><span class="p">[:</span><span class="mi">8</span><span class="p">],</span> <span class="n">lst</span><span class="p">[</span><span class="mi">8</span><span class="p">:])</span>
+</span><span class='line'><span class="n">maped</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">combined</span><span class="p">)</span>
+</span><span class='line'><span class="k">assert</span> <span class="n">maped</span> <span class="o">==</span> <span class="p">[</span><span class="mi">591</span><span class="p">,</span> <span class="mi">599</span><span class="p">,</span> <span class="mi">687</span><span class="p">,</span> <span class="mi">663</span><span class="p">,</span> <span class="mi">475</span><span class="p">,</span> <span class="mi">687</span><span class="p">,</span> <span class="mi">687</span><span class="p">,</span> <span class="mi">609</span><span class="p">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now we need to know the function f, <code>si</code> into <code>camlList__map</code> and we can find out f at <code>0x402360</code></p>
+
+<pre><code>=&gt; 0x402360:    sar    rbx,1
+   0x402363:    lea    rax,[rax+rbx*4]
+   0x402367:    ret
+</code></pre>
+
+<p>so the python code can be completed</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="n">combined</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="n">lst</span><span class="p">[:</span><span class="mi">8</span><span class="p">],</span> <span class="n">lst</span><span class="p">[</span><span class="mi">8</span><span class="p">:])</span>
+</span><span class='line'><span class="n">maped</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">&gt;&gt;</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="mi">4</span><span class="o">+</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">combined</span><span class="p">)</span>
+</span><span class='line'><span class="k">assert</span> <span class="n">maped</span> <span class="o">==</span> <span class="p">[</span><span class="mi">591</span><span class="p">,</span> <span class="mi">599</span><span class="p">,</span> <span class="mi">687</span><span class="p">,</span> <span class="mi">663</span><span class="p">,</span> <span class="mi">475</span><span class="p">,</span> <span class="mi">687</span><span class="p">,</span> <span class="mi">687</span><span class="p">,</span> <span class="mi">609</span><span class="p">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>the next 3 check functions are at <code>0x4029e0</code>, <code>0x402a80</code>, <code>0x402b20</code>, all of them looks like the function we just analysed. It&rsquo;s obvious <code>0x402b20</code> is the simplest. Using the same technique stated above. We can find out this check is actually doing this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="k">assert</span> <span class="n">lst</span><span class="p">[</span><span class="mi">7</span><span class="p">:]</span> <span class="o">==</span> <span class="p">[</span><span class="mi">145</span><span class="p">,</span> <span class="mi">195</span><span class="p">,</span> <span class="mi">233</span><span class="p">,</span> <span class="mi">229</span><span class="p">,</span> <span class="mi">221</span><span class="p">,</span> <span class="mi">137</span><span class="p">,</span> <span class="mi">243</span><span class="p">,</span> <span class="mi">229</span><span class="p">,</span> <span class="mi">233</span><span class="p">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>WTF? I just cannot believe this. Fine, we do not need to analyze other functions. Now we can get our most wanted flag</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="n">rev</span> <span class="o">=</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">5</span><span class="p">]</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">fun7</span> <span class="o">=</span> <span class="p">[</span><span class="mi">145</span><span class="p">,</span> <span class="mi">195</span><span class="p">,</span> <span class="mi">233</span><span class="p">,</span> <span class="mi">229</span><span class="p">,</span> <span class="mi">221</span><span class="p">,</span> <span class="mi">137</span><span class="p">,</span> <span class="mi">243</span><span class="p">,</span> <span class="mi">229</span><span class="p">,</span> <span class="mi">233</span><span class="p">]</span>
+</span><span class='line'><span class="n">fun4</span> <span class="o">=</span> <span class="p">[</span><span class="mi">591</span><span class="p">,</span> <span class="mi">599</span><span class="p">,</span> <span class="mi">687</span><span class="p">,</span> <span class="mi">663</span><span class="p">,</span> <span class="mi">475</span><span class="p">,</span> <span class="mi">687</span><span class="p">,</span> <span class="mi">687</span><span class="p">,</span> <span class="mi">609</span><span class="p">]</span>
+</span><span class='line'><span class="n">p</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span class='line'><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">):</span>
+</span><span class='line'>    <span class="n">p</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fun4</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="n">fun7</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">&gt;&gt;</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="mi">4</span><span class="p">)</span>
+</span><span class='line'><span class="n">lst</span> <span class="o">=</span> <span class="n">p</span> <span class="o">+</span> <span class="n">fun7</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+</span><span class='line'><span class="n">lst</span> <span class="o">=</span> <span class="p">[(</span><span class="n">lst</span><span class="p">[</span><span class="n">rev</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">lst</span><span class="p">))]</span>
+</span><span class='line'><span class="k">print</span> <span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">chr</span><span class="p">,</span> <span class="n">lst</span><span class="p">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The flag is <code>HenryDorsettCase</code></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Defcon 20 小记]]></title>
