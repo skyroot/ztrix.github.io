@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Open Source | From Zero To X]]></title>
+  <link href="http://blog.ztrix.me/blog/categories/open-source/atom.xml" rel="self"/>
+  <link href="http://blog.ztrix.me/"/>
+  <updated>2014-03-29T21:22:56+08:00</updated>
+  <id>http://blog.ztrix.me/</id>
+  <author>
+    <name><![CDATA[zTrix]]></name>
+    <email><![CDATA[i@ztrix.me]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Let's Make License Social! The Star and Thank Author License (SATA License)]]></title>
+    <link href="http://blog.ztrix.me/blog/2014/03/29/star-and-thank-author-license/"/>
+    <updated>2014-03-29T20:01:36+08:00</updated>
+    <id>http://blog.ztrix.me/blog/2014/03/29/star-and-thank-author-license</id>
+    <content type="html"><![CDATA[<p>There are many <a href="http://opensource.org/licenses">licenses</a> out there for open source software. <a href="http://opensource.org/licenses/gpl-license">GPL</a>, <a href="http://opensource.org/licenses/MIT">MIT License</a>, <a href="http://opensource.org/licenses/Apache-2.0">Apache License</a> are most popular ones among them.</p>
+
+<p>When creating projects on <a href="http://github.com">github</a>/<a href="http://code.google.com">google code</a>, there even is an option for people to choose the most popular licenses.</p>
+
+<p>But to me, those licenses are boring, and for most of the time, I think, nobody care about them, very few people can distinguish them. Actually, it&rsquo;s just put into a project occupying an embarrassing position, maybe just to make a project feels more like a formal one, and in active developing.</p>
+
+<p>Why not make those licenses more interesting, and attach some social functions for developers?</p>
+
+<!-- more -->
+
+
+<p>I&rsquo;ve come up with an idea called, <a href="https://github.com/zTrix/star-and-thank-author-license">Star And Thank Author License</a>. The key points are</p>
+
+<ul>
+<li>People need to star/+1/Like the project which uses <a href="https://github.com/zTrix/star-and-thank-author-license">SATA License</a>.</li>
+<li>People need to thank the authors of the project listed in the <a href="https://github.com/zTrix/star-and-thank-author-license">SATA License</a>.</li>
+</ul>
+
+
+<p>Here I am going to explain in details.</p>
+
+<h2>How about forking a project with <a href="https://github.com/zTrix/star-and-thank-author-license">SATA License</a>?</h2>
+
+<p>The <a href="https://github.com/zTrix/star-and-thank-author-license">SATA License</a> stated that</p>
+
+<pre><code>Contributors of this project by forking have the option to add his/her name and 
+forked project url at copyright and project url sections, but shall not delete 
+or modify anything else in these two sections.
+</code></pre>
+
+<p>So, when someone used a project B which is forked from project A, he/she still needs to Star and Thank the original project A. For project B, if the author listed himself/herself in the <a href="https://github.com/zTrix/star-and-thank-author-license">SATA License</a>, then the users of project B also need to star and thank author of project B.</p>
+
+<p>Things are the same if some other developers forked project B. First he need to star and thank the authors of project A and B, then he can list himself in.</p>
+
+<p>Thus whatever point you access in the fork tree, you have to star and thank all the authors from the fork tree leaf up to the root of the tree.</p>
+
+<h2>How to star/+1/like projects?</h2>
+
+<p><a href="http://github.com">Github</a> are the most popular source code hosting and social coding platform, there is a <code>star</code> button at the top-right corner of project home page. For google code hosting, you can <code>+1</code> the project, and for others, there is always some <code>like</code> or <code>thumb up</code> system, just click them.</p>
+
+<h2>How to thank project authors?</h2>
+
+<p>I&rsquo;ve suggested a few in the license text, but not limited to those</p>
+
+<ul>
+<li>Email the authors a thank-you letter, and make friends with him/her/them.</li>
+<li>Report bugs or issues.</li>
+<li>Tell friends what a wonderful project this is.</li>
+<li>And, sure, you can just express thanks in your mind without telling the world.</li>
+</ul>
+
+
+<p>Actually, the thank-author process can be done in any ways you think OK. Star and thank author are just designed to attach social interaction functions to licenses. When you email a thank-you letter, no matter long or short, you build up a connection with the author. That&rsquo;s why I think you should let the author know you are grateful. Social developing has unlimited power, without which, Linux will be impossible to be such a success.</p>
+
+<h2>Which License is SATA License based on?</h2>
+
+<p>The <a href="https://github.com/zTrix/star-and-thank-author-license">SATA License</a> is based on <a href="http://opensource.org/licenses/MIT">MIT License</a>. I only added several lines. You can also create your own customized <a href="https://github.com/zTrix/star-and-thank-author-license">SATA License</a> by sublicensing <a href="http://opensource.org/licenses/gpl-license">GPL</a>, or any others.</p>
+
+<p>Remember the primary goal and key point of <a href="https://github.com/zTrix/star-and-thank-author-license">SATA License</a> is to make licenses social. Don&rsquo;t limit yourself in those unimportant details.</p>
+
+<p>Enjoy social coding with <a href="https://github.com/zTrix/star-and-thank-author-license">SATA License</a>!</p>
+]]></content>
+  </entry>
+  
+</feed>
