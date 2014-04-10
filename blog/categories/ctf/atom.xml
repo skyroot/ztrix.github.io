@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Ctf | From Zero To X]]></title>
   <link href="http://blog.ztrix.me/blog/categories/ctf/atom.xml" rel="self"/>
   <link href="http://blog.ztrix.me/"/>
-  <updated>2014-03-29T21:22:56+08:00</updated>
+  <updated>2014-04-11T01:44:02+08:00</updated>
   <id>http://blog.ztrix.me/</id>
   <author>
     <name><![CDATA[zTrix]]></name>
@@ -12,6 +12,67 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Codegate CTF Final 2014 Memory]]></title>
+    <link href="http://blog.ztrix.me/blog/2014/04/10/codegate-ctf-final-2014-memory/"/>
+    <updated>2014-04-10T23:48:01+08:00</updated>
+    <id>http://blog.ztrix.me/blog/2014/04/10/codegate-ctf-final-2014-memory</id>
+    <content type="html"><![CDATA[<p>Last week, We represented team blue-lotus, consisting of me(zTrix), cbmixx, Aluex, Adrian, fqj and our beautiful photographer as well as translator, at Codegate CTF Finals 2014, in Seoul, South Korea. It&rsquo;s really a wonderful experience.</p>
+
+<p>Since we are close to Seoul, we took off at April 1st, just one day before the game.</p>
+
+<!-- more -->
+
+
+<p>The good part of participating CTF offline final events in South Korea is, we are familiar with the culture, and only 1 hour time zone delta cause no jetlag at all. Besides, some of us took part in Secuinside Finals 2013, which was also in Seoul. So basically, things went very smoothly.</p>
+
+<p>But still we have some problems, the biggest one was language. We knew nothing about Korean, and our translator as well as photographer, always told us to communicate by ourselves, unless necessary, she wouldn&rsquo;t help us. So we tried as hard as we could, using simple English words, gestures, even a little Japanese, and amazingly, Korean people could understand us!</p>
+
+<p>The CTF game started at 2pm on April 2nd, and lasted 20 hours until 10 AM the next morning. All 14 teams (CLGT didn&rsquo;t manage to present) were in a large Hall room, with the organizers located at a corner.</p>
+
+<p><img src="/images/codegate-ctf-final-2014-memory/cg.jpg" alt="/images/codegate-ctf-final-2014-memory/cg.jpg" /></p>
+
+<p>Most of the TOP CTF teams such as <a href="(http://ppp.cylab.cmu.edu/)">PPP</a>, <a href="http://mslc.ctf.su/">More Smoked Leet Chicken</a>, <a href="http://blog.dragonsector.pl">dragon sector</a> were in the competition. <a href="(http://ppp.cylab.cmu.edu/)">PPP</a> sent the most powerful members, including the famous <a href="http://geohot.com/">geohot</a>. So even before the game, we could bet on <a href="(http://ppp.cylab.cmu.edu/)">PPP</a>&rsquo;s winning of champion without hesitation.</p>
+
+<p>A total of 15 problems were released one after another. Here are the problem list.</p>
+
+<ul>
+<li>RPG, web, 300</li>
+<li>wsh, pwnable, 400</li>
+<li>akkka, reversing, 300</li>
+<li>running_danbi, mixed, 750</li>
+<li>graynode, reversing, 800</li>
+<li>TK, web, 200</li>
+<li>pentester, logical + pwnable, 450</li>
+<li>login page, web, 350</li>
+<li>securepack, mixed, 350</li>
+<li>trueman, web, 600</li>
+<li>fortune teller, crypto + pwnable, 650</li>
+<li>hexagrams, reversing, 600</li>
+<li>virtual terminal, pwnable, 500</li>
+<li>drupbox, pwnable, 400</li>
+<li>webboard, web, 350</li>
+</ul>
+
+
+<p>So actually problems can be categoried into web (lots of SQL injection) and binary analysis (piggyback crypto, logical and pwnable elements).</p>
+
+<p>From our point of view, the problems are hard and tricky, but not for <a href="(http://ppp.cylab.cmu.edu/)">PPP</a>. At 14:55, only less than one hour from the beginning, the organizer announced first blood from <a href="(http://ppp.cylab.cmu.edu/)">PPP</a>. After that, I can still remember they announced several first blood of <a href="(http://ppp.cylab.cmu.edu/)">PPP</a>, especially for graynode, the problem with the highest score. Actually only <a href="(http://ppp.cylab.cmu.edu/)">PPP</a> solved that problem thoughout the game. For us, we even didn&rsquo;t get any time on opening it.</p>
+
+<p>We solved several web problems, and only one binary, the pentester, by me. The bug is a tricky logic error which could be called &ldquo;use before init&rdquo;. A buffer malloced from heap are created each time storing the password, but without initialization, which allow us to dump the admin password byte by byte. Although the problems are marked as &ldquo;Logical + Pwnable&rdquo;, it turned out there was nothing &ldquo;pwnable&rdquo; here, just exploiting the logic error was enough to score. I used my own crafted io library <a href="https://github.com/zTrix/zio">zio</a>, which was very handy, and I only took less than 10 minutes on writing exploitation code after identifying the bug.</p>
+
+<p>Finally we ranked 8. We tried our best. And congratulations to <a href="(http://ppp.cylab.cmu.edu/)">PPP</a>, <a href="http://mslc.ctf.su/">MSLC</a>, <a href="http://blog.dragonsector.pl">Dragon Sector</a>, <a href="http://eindbazen.net/">eindbazen</a>, you guys really rocks!</p>
+
+<p><img src="/images/codegate-ctf-final-2014-memory/scoreboard.png" alt="/images/codegate-ctf-final-2014-memory/scoreboard.png" /></p>
+
+<p>Note that <a href="(http://ppp.cylab.cmu.edu/)">PPP</a> got more scores than the sum of 2nd and 3rd place.</p>
+
+<p>There was an interesting network session after the CTF. We met a lot of interesting people. We met some members from <a href="https://ctftime.org/team/1816">pwnies</a>, they were very friendly. And their <a href="https://github.com/pwnies/pwntools">pwntools</a> is one of our favorite tools. Thanks for such great tool! We talked with the awesome <a href="(http://ppp.cylab.cmu.edu/)">PPP</a> members, and got some clue on how they solved those hard problems. It&rsquo;s really great to meet those cool guys.</p>
+
+<p>To conclude, I really appreciate this trip to South Korea participating such a great CTF. The problems were well prepared with very few defects, and the organizer provided network router, cable, switch, power socket, and even food. So we could focus on solving problems. Thank you for hosting. Looking forward to codegate CTFs in the future.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Codegate CTF 2014 Quals - Weirdshark Writeup]]></title>

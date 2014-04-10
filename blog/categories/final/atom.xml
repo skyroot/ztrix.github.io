@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: Codegate | From Zero To X]]></title>
-  <link href="http://blog.ztrix.me/blog/categories/codegate/atom.xml" rel="self"/>
+  <title><![CDATA[Category: Final | From Zero To X]]></title>
+  <link href="http://blog.ztrix.me/blog/categories/final/atom.xml" rel="self"/>
   <link href="http://blog.ztrix.me/"/>
   <updated>2014-04-11T01:44:02+08:00</updated>
   <id>http://blog.ztrix.me/</id>
@@ -71,84 +71,6 @@
 <p>There was an interesting network session after the CTF. We met a lot of interesting people. We met some members from <a href="https://ctftime.org/team/1816">pwnies</a>, they were very friendly. And their <a href="https://github.com/pwnies/pwntools">pwntools</a> is one of our favorite tools. Thanks for such great tool! We talked with the awesome <a href="(http://ppp.cylab.cmu.edu/)">PPP</a> members, and got some clue on how they solved those hard problems. It&rsquo;s really great to meet those cool guys.</p>
 
 <p>To conclude, I really appreciate this trip to South Korea participating such a great CTF. The problems were well prepared with very few defects, and the organizer provided network router, cable, switch, power socket, and even food. So we could focus on solving problems. Thank you for hosting. Looking forward to codegate CTFs in the future.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Codegate CTF 2014 Quals - Weirdshark Writeup]]></title>
-    <link href="http://blog.ztrix.me/blog/2014/02/25/codegate-2014-weirdshark-writeup/"/>
-    <updated>2014-02-25T01:51:55+08:00</updated>
-    <id>http://blog.ztrix.me/blog/2014/02/25/codegate-2014-weirdshark-writeup</id>
-    <content type="html"><![CDATA[<p>by <code>zTrix@blue-lotus</code></p>
-
-<p>A pcap file is given here for analysis. check type using <code>file</code></p>
-
-<pre><code># file weird_shark.pcap_f5f1e42dd398f18c43af89ba972b3ee7
-weird_shark.pcap_f5f1e42dd398f18c43af89ba972b3ee7: pcap-ng capture file - version 1.0
-</code></pre>
-
-<p>Open the file using wireshark, but no luck, wireshark reports malformed file format and refuse to open it.</p>
-
-<p>So we need to extract the packets inside manually.</p>
-
-<!-- more -->
-
-
-<p>Soon I got the file format document <a href="https://www.winpcap.org/ntar/draft/PCAP-DumpFileFormat.html">here</a>, the file format is really simple, it&rsquo;s organized in blocks, and according to my comprehension, each block contains a single network frame packet.</p>
-
-<p>According to <code>general block structure</code> section in the pcap document, we can easily get the block type, length, and content.</p>
-
-<p>And as for the packet, there are several levels of network protocol headers, a brief hex view shows that the network traffic are HTTP requests and responses, so the protocol stack should be IP + TCP + HTTP</p>
-
-<pre><code>| 6 + 6 bytes MAC addr + 2 bytes (ethertype 08 00) | 20 bytes IP header | 20 bytes TCP header | HTTP Header + HTTP Body |
-</code></pre>
-
-<p>the hard thing here to do manually pcap parse is to assemble TCP packets into byte stream, which require a good understanding of TCP control sequence. But we can assume that the network condition is good, no packet loss or retranssmission happens, just assemble them one by one and see what happens.</p>
-
-<p>use the following python code to extract all http content</p>
-
-<p>```python
-import os, sys, struct</p>
-
-<p>f = open(&lsquo;weird_shark.pcap_f5f1e42dd398f18c43af89ba972b3ee7&rsquo;).read()
-total = len(f)</p>
-
-<h1>skip the first two blocks, which seems broken, 0x80 and 0x9c are the block sizes respectively</h1>
-
-<p>index = 0x80 + 0x9c</p>
-
-<p>w = open(&lsquo;http-content.bin&rsquo;, &lsquo;w&rsquo;)</p>
-
-<p>while index &lt; total:</p>
-
-<pre><code>block_type = f[index:index+4].encode('hex')
-block_size = struct.unpack('&lt;I', f[index+4:index+8])[0]
-captured_len = struct.unpack('&lt;I', f[index+20:index+24])[0]
-packet_len = struct.unpack('&lt;I', f[index+24:index+28])[0]
-print index, block_size, packet_len, captured_len, block_type
-w.write(f[index+28+54:index+28+packet_len])
-w.flush()
-index += block_size
-</code></pre>
-
-<p>w.close()
-```</p>
-
-<p>The result seems very promising,  just concat the packet contents one by one really works! which indicates the network condition is really good. There are several http requests inside</p>
-
-<pre><code>GET / HTTP/1.1
-GET /favicon.ico HTTP/1.1
-GET /mario.png HTTP/1.1
-GET /favicon.ico HTTP/1.1
-GET /obama.bmp HTTP/1.1
-GET /codegate.jpg HTTP/1.1
-GET /multiple.pdf HTTP/1.1
-GET /grayhash.jpg HTTP/1.1
-</code></pre>
-
-<p>And to my surprise, the flag is not in <code>codegate.jpg</code>, but in <code>multiple.pdf</code></p>
-
-<p>FLAG = <code>FORENSICS_WITH_HAXORS</code></p>
 ]]></content>
   </entry>
   
