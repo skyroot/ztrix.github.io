@@ -4,7 +4,7 @@
   <title><![CDATA[From Zero To X]]></title>
   <link href="http://blog.ztrix.me/atom.xml" rel="self"/>
   <link href="http://blog.ztrix.me/"/>
-  <updated>2014-04-11T21:07:02+08:00</updated>
+  <updated>2014-04-14T22:34:16+08:00</updated>
   <id>http://blog.ztrix.me/</id>
   <author>
     <name><![CDATA[zTrix]]></name>
@@ -12,6 +12,287 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[PlaidCTF 2014 - Parlor (Crypto 250) Writeup]]></title>
+    <link href="http://blog.ztrix.me/blog/2014/04/14/plaidctf-2014-parlor-writeup/"/>
+    <updated>2014-04-14T21:12:55+08:00</updated>
+    <id>http://blog.ztrix.me/blog/2014/04/14/plaidctf-2014-parlor-writeup</id>
+    <content type="html"><![CDATA[<p>by <code>zTrix@blue-lotus</code></p>
+
+<p>Problem description</p>
+
+<pre><code>Crypto (250 pts)
+
+The Plague is running a betting service to build up funds for his massive empire. Can you figure out a way to beat the house? The service is running at 54.197.195.247:4321.
+</code></pre>
+
+<!-- more -->
+
+
+<p>use nc to connect the service, we got the following screen</p>
+
+<pre><code>/------------------------------------------------------------------------------\
+| Welcome to the betting parlor!                                               |
+|                                                                              |
+| We implement State of the Art cryptography to give you the fairest and most  |
+| exciting betting experience!                                                 |
+|                                                                              |
+| Here's how it works: we both pick a nonce, you tell us odds, and you give us |
+| some money.                                                                  |
+| If md5(our number + your number) % odds == 0, you win bet amount*odds.       |
+| UPDATE: IF YOU DIDN'T REALIZE IT, WE DO INCLUDE A NEWLINE AT THE END OF YOUR |
+| NUMBER. SORRY FOR THE INCONVENIENCE. THANK YOU FOR USING PARLOR              |
+| Otherwise, we get your money! We're even so nice, we gave you $1000 to start.|
+|                                                                              |
+| If you don't trust us, we will generate a new nonce, and reveal the old nonce|
+| to you, so you can verify all of our results!                                |
+|                                                                              |
+| (Oh, and if you win a billion dollars, we'll give you a flag.)               |
+\______________________________________________________________________________/
+
+====================
+  1) set your odds
+  2) set your bet
+  3) play a round
+  4) get balance
+  5) reveal nonce
+  6) quit
+====================
+</code></pre>
+
+<p>So, it&rsquo;s a small betting game, if we can win enough money, we&rsquo;ll get a flag.</p>
+
+<p>Studying the rules, we can see that, the smaller the odds, the more likely we can win. If we set odds to <code>1^2</code>, the chance to win will be a half. But we cannot bet the same nonce after winning.</p>
+
+<p>So if we can figure out a way to always win, then we can double our balance each time, reaching a billion won&rsquo;t be a problem any more.</p>
+
+<p>Since the md5 is calculated on <code>server_nonce + player_nonce</code>, and <code>server_nonce</code> won&rsquo;t change until you reveal it, and <code>player_nonce</code> is under our control, so we can easily think of the <a href="http://en.wikipedia.org/wiki/Length_extension_attack">Hash length extension attack</a>.</p>
+
+<p>However, to use <a href="http://en.wikipedia.org/wiki/Length_extension_attack">Hash length extension attack</a>, we need the result of <code>md5(server_nonce + player_nonce)</code>. If we set odds to <code>1^100</code>, then we can get 100 bits of the md5 digest, how about the remaining 28 bits?</p>
+
+<p>Since <code>2^28</code> is not a huge number, we can use brute-force. Here is the attack plan:</p>
+
+<ol>
+<li> Set our bet to 1$, odds to <code>2^100</code>, play a round, send &lsquo;a\n&rsquo;</li>
+<li> It&rsquo;s mostly likely we will lose, never mind, grab the generated value, which should be sth like <code>0000000171ccbeef0869667267a6bbdd</code> in hex format.</li>
+<li> Construct hash length attack padding suffix, play another round, send &lsquo;a\n&rsquo; + suffix + &lsquo;b\n&rsquo;, which would be sth like <code>a\n\x80\x00\x00......\x00\x90\x00\x00\x00\x00\x00\x00\x00b\n</code></li>
+<li> And, not surprised, we lose again, never mind, grab the second generated value, which should be sth like <code>0000000f48eabc92e4b180a8d1b7c3d3</code> in hex format.</li>
+</ol>
+
+
+<p>OK, now we know</p>
+
+<ol>
+<li> <code>md5(server_nonce + 'a\n') == XXXXXX171ccbeef0869667267a6bbdd</code></li>
+<li> <code>md5(server_nonce + 'a\n\x80\x00......\x00\x90\x00\x00\x00\x00\x00\x00\x00b\n' == YYYYYYf48eabc92e4b180a8d1b7c3d3</code></li>
+<li> if we know the value of XXXXXXX, we can calculate YYYYYYf48eabc92e4b180a8d1b7c3d3 by hash length extention attack</li>
+</ol>
+
+
+<p>So just brute-force the value of XXXXXXX, and calculate the second md5 value, until we get the same suffix (f48eabc92e4b180a8d1b7c3d3).</p>
+
+<p>After that, use hash extension attack again to search md5 hashes ending with bit 0, which is very easy. Send those winning nonce and get the flag!</p>
+
+<figure class='code'><figcaption><span> (parlor.py)</span> <a href='http://blog.ztrix.me/downloads/code/plaidctf-2014-parlor-writeup/parlor.py'>download</a></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+</pre></td><td class='code'><pre><code class='py'><span class='line'><span class="c">#!/usr/bin/env python2</span>
+</span><span class='line'><span class="c">#-*- coding:utf-8 -*-</span>
+</span><span class='line'>
+</span><span class='line'><span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">sys</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">subprocess</span>
+</span><span class='line'><span class="kn">from</span> <span class="nn">zio</span> <span class="kn">import</span> <span class="o">*</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">md5_ext</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">a</span><span class="p">):</span>
+</span><span class='line'>    <span class="n">tl</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">*</span> <span class="mi">8</span>
+</span><span class='line'>    <span class="n">ret</span> <span class="o">=</span> <span class="n">s</span> <span class="o">+</span> <span class="s">&#39;</span><span class="se">\x80</span><span class="s">&#39;</span>
+</span><span class='line'>    <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span> <span class="o">%</span> <span class="mi">64</span> <span class="o">!=</span> <span class="mi">56</span><span class="p">:</span>
+</span><span class='line'>        <span class="n">ret</span> <span class="o">+=</span> <span class="s">&#39;</span><span class="se">\x00</span><span class="s">&#39;</span>
+</span><span class='line'>    <span class="n">ret</span> <span class="o">+=</span> <span class="n">l32</span><span class="p">(</span><span class="n">tl</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">ret</span> <span class="o">+=</span> <span class="n">l32</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">ret</span> <span class="o">+</span> <span class="n">a</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">host</span> <span class="o">=</span> <span class="s">&#39;54.197.195.247&#39;</span>
+</span><span class='line'><span class="n">port</span> <span class="o">=</span> <span class="mi">4321</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">io</span> <span class="o">=</span> <span class="n">zio</span><span class="p">((</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">),</span> <span class="n">print_write</span> <span class="o">=</span> <span class="n">COLORED</span><span class="p">(</span><span class="n">REPR</span><span class="p">))</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">io</span><span class="o">.</span><span class="n">read_until</span><span class="p">(</span><span class="s">&#39;6) quit&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="n">io</span><span class="o">.</span><span class="n">writeline</span><span class="p">(</span><span class="s">&#39;1&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="n">io</span><span class="o">.</span><span class="n">read_until</span><span class="p">(</span><span class="s">&#39;and 100):&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="n">io</span><span class="o">.</span><span class="n">writeline</span><span class="p">(</span><span class="s">&#39;100&#39;</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">io</span><span class="o">.</span><span class="n">read_until</span><span class="p">(</span><span class="s">&#39;6) quit&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="n">io</span><span class="o">.</span><span class="n">writeline</span><span class="p">(</span><span class="s">&#39;3&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="n">io</span><span class="o">.</span><span class="n">read_until</span><span class="p">(</span><span class="s">&#39;nonce for this round&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="n">io</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;a</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="n">io</span><span class="o">.</span><span class="n">read_until</span><span class="p">(</span><span class="s">&#39;we generated &#39;</span><span class="p">)</span>
+</span><span class='line'><span class="n">remain1</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">read_until</span><span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+</span><span class='line'><span class="n">remain1_str</span> <span class="o">=</span> <span class="s">&#39;0&#39;</span> <span class="o">*</span> <span class="mi">7</span> <span class="o">+</span> <span class="nb">hex</span><span class="p">(</span><span class="n">remain1</span><span class="p">)[</span><span class="mi">2</span><span class="p">:]</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s">&#39;L&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="k">print</span> <span class="n">remain1</span><span class="p">,</span> <span class="n">remain1_str</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">ext</span> <span class="o">=</span> <span class="n">md5_ext</span><span class="p">(</span><span class="s">&#39;k&#39;</span> <span class="o">*</span> <span class="mi">16</span> <span class="o">+</span> <span class="s">&#39;a</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">,</span> <span class="s">&#39;b</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="n">io</span><span class="o">.</span><span class="n">read_until</span><span class="p">(</span><span class="s">&#39;6) quit&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="n">io</span><span class="o">.</span><span class="n">writeline</span><span class="p">(</span><span class="s">&#39;3&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="n">io</span><span class="o">.</span><span class="n">read_until</span><span class="p">(</span><span class="s">&#39;nonce for this round&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="n">io</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">ext</span><span class="p">[</span><span class="mi">16</span><span class="p">:])</span>
+</span><span class='line'><span class="n">io</span><span class="o">.</span><span class="n">read_until</span><span class="p">(</span><span class="s">&#39;we generated &#39;</span><span class="p">)</span>
+</span><span class='line'><span class="n">remain2</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">read_until</span><span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+</span><span class='line'><span class="n">remain2_str</span> <span class="o">=</span> <span class="s">&#39;0&#39;</span> <span class="o">*</span> <span class="mi">7</span> <span class="o">+</span> <span class="nb">hex</span><span class="p">(</span><span class="n">remain2</span><span class="p">)[</span><span class="mi">2</span><span class="p">:]</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s">&#39;L&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="k">print</span> <span class="n">remain2</span><span class="p">,</span> <span class="n">remain2_str</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="bp">False</span><span class="p">:</span>
+</span><span class='line'>    <span class="n">io</span><span class="o">.</span><span class="n">read_until</span><span class="p">(</span><span class="s">&#39;6) quit&#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">io</span><span class="o">.</span><span class="n">writeline</span><span class="p">(</span><span class="s">&#39;5&#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">io</span><span class="o">.</span><span class="n">read_until</span><span class="p">(</span><span class="s">&#39;the nonce has been &#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">nonce</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="mi">16</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">print</span> <span class="nb">hex</span><span class="p">(</span><span class="n">nonce</span><span class="p">)[</span><span class="mi">2</span><span class="p">:]</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s">&#39;L&#39;</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">log</span><span class="p">(</span><span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s">&#39;./search&#39;</span><span class="p">,</span> <span class="n">remain1_str</span><span class="p">,</span> <span class="n">remain2_str</span><span class="p">]),</span> <span class="s">&#39;red&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="n">prefix</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">([</span><span class="s">&#39;./search&#39;</span><span class="p">,</span> <span class="n">remain1_str</span><span class="p">,</span> <span class="n">remain2_str</span><span class="p">])</span>
+</span><span class='line'><span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">prefix</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="o">==</span> <span class="mi">7</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">first_md5</span> <span class="o">=</span> <span class="n">prefix</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">+</span> <span class="n">remain1_str</span><span class="p">[</span><span class="mi">7</span><span class="p">:]</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">io</span><span class="o">.</span><span class="n">read_until</span><span class="p">(</span><span class="s">&#39;6) quit&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="n">io</span><span class="o">.</span><span class="n">writeline</span><span class="p">(</span><span class="s">&#39;1&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="n">io</span><span class="o">.</span><span class="n">read_until</span><span class="p">(</span><span class="s">&#39;between 1 and 100):&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="n">io</span><span class="o">.</span><span class="n">writeline</span><span class="p">(</span><span class="s">&#39;1&#39;</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">log</span><span class="p">(</span><span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s">&#39;./even&#39;</span><span class="p">,</span> <span class="n">first_md5</span><span class="p">]),</span> <span class="s">&#39;red&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="n">candi</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">([</span><span class="s">&#39;./even&#39;</span><span class="p">,</span> <span class="n">first_md5</span><span class="p">])</span>
+</span><span class='line'><span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">candi</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">splitlines</span><span class="p">():</span>
+</span><span class='line'>    <span class="n">ary</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;, &#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">c</span> <span class="o">=</span> <span class="nb">chr</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">ary</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">c</span> <span class="o">==</span> <span class="s">&#39;b&#39;</span><span class="p">:</span> <span class="k">continue</span>
+</span><span class='line'>    <span class="n">ext</span> <span class="o">=</span> <span class="n">md5_ext</span><span class="p">(</span><span class="s">&#39;k&#39;</span> <span class="o">*</span> <span class="mi">16</span> <span class="o">+</span> <span class="s">&#39;a</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">,</span> <span class="n">c</span> <span class="o">+</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">log</span><span class="p">(</span><span class="s">&#39;hash expectation: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">ary</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s">&#39;red&#39;</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">io</span><span class="o">.</span><span class="n">read_until</span><span class="p">(</span><span class="s">&#39;6) quit&#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">io</span><span class="o">.</span><span class="n">writeline</span><span class="p">(</span><span class="s">&#39;2&#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">io</span><span class="o">.</span><span class="n">read_until</span><span class="p">(</span><span class="s">&#39; and &#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">balance</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">read_until</span><span class="p">(</span><span class="s">&#39;):&#39;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+</span><span class='line'>    <span class="n">io</span><span class="o">.</span><span class="n">writeline</span><span class="p">(</span><span class="n">balance</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">io</span><span class="o">.</span><span class="n">read_until</span><span class="p">(</span><span class="s">&#39;6) quit&#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">io</span><span class="o">.</span><span class="n">writeline</span><span class="p">(</span><span class="s">&#39;3&#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">io</span><span class="o">.</span><span class="n">read_until</span><span class="p">(</span><span class="s">&#39;nonce for this round&#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">io</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">ext</span><span class="p">[</span><span class="mi">16</span><span class="p">:])</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">rs</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">read_until</span><span class="p">(</span><span class="s">&#39;====&#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">if</span> <span class="s">&#39;Too bad&#39;</span> <span class="ow">in</span> <span class="n">rs</span><span class="p">:</span>
+</span><span class='line'>        <span class="k">break</span>
+</span><span class='line'>    <span class="k">elif</span> <span class="s">&#39;key&#39;</span> <span class="ow">in</span> <span class="n">rs</span><span class="p">:</span>
+</span><span class='line'>        <span class="k">break</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">io</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Here is the command line output recorded by asciinema <a href="https://asciinema.org/a/8888">commandline output record</a></p>
+
+<script type="text/javascript" src="https://asciinema.org/a/8888.js" id="asciicast-8888" async></script>
+
+
+<p>Download source code here</p>
+
+<ul>
+<li><a href="http://blog.ztrix.me/download/plaidctf-2014-parlor-writeup/parlor.py">attack script parlor.py</a></li>
+<li><a href="http://blog.ztrix.me/download/plaidctf-2014-parlor-writeup/search.cpp">search.cpp</a></li>
+<li><a href="http://blog.ztrix.me/download/plaidctf-2014-parlor-writeup/even.cpp">even.cpp</a></li>
+</ul>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Codegate CTF Final 2014 Memory]]></title>
