@@ -111,7 +111,8 @@
 
 <pre><code>Crypto (250 pts)
 
-The Plague is running a betting service to build up funds for his massive empire. Can you figure out a way to beat the house? The service is running at 54.197.195.247:4321.
+The Plague is running a betting service to build up funds for his massive empire. Can you 
+figure out a way to beat the house? The service is running at 54.197.195.247:4321.
 </code></pre>
 
 <!-- more -->
@@ -272,11 +273,15 @@ The Plague is running a betting service to build up funds for his massive empire
 <span class='line-number'>88</span>
 <span class='line-number'>89</span>
 <span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
 </pre></td><td class='code'><pre><code class='py'><span class='line'><span class="c">#!/usr/bin/env python2</span>
 </span><span class='line'><span class="c">#-*- coding:utf-8 -*-</span>
 </span><span class='line'>
 </span><span class='line'><span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">sys</span>
 </span><span class='line'><span class="kn">import</span> <span class="nn">subprocess</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># https://github.com/zTrix/zio</span>
 </span><span class='line'><span class="kn">from</span> <span class="nn">zio</span> <span class="kn">import</span> <span class="o">*</span>
 </span><span class='line'>
 </span><span class='line'><span class="k">def</span> <span class="nf">md5_ext</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">a</span><span class="p">):</span>
