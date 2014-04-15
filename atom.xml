@@ -4,7 +4,7 @@
   <title><![CDATA[From Zero To X]]></title>
   <link href="http://blog.ztrix.me/atom.xml" rel="self"/>
   <link href="http://blog.ztrix.me/"/>
-  <updated>2014-04-14T23:03:45+08:00</updated>
+  <updated>2014-04-15T12:18:55+08:00</updated>
   <id>http://blog.ztrix.me/</id>
   <author>
     <name><![CDATA[zTrix]]></name>
@@ -291,9 +291,9 @@ figure out a way to beat the house? The service is running at 54.197.195.247:432
 <p>Download source code here</p>
 
 <ul>
-<li><a href="http://blog.ztrix.me/download/plaidctf-2014-parlor-writeup/parlor.py">attack script parlor.py</a></li>
-<li><a href="http://blog.ztrix.me/download/plaidctf-2014-parlor-writeup/search.cpp">search.cpp</a></li>
-<li><a href="http://blog.ztrix.me/download/plaidctf-2014-parlor-writeup/even.cpp">even.cpp</a></li>
+<li><a href="http://blog.ztrix.me/downloads/code/plaidctf-2014-parlor-writeup/parlor.py">attack script parlor.py</a></li>
+<li><a href="http://blog.ztrix.me/downloads/code/plaidctf-2014-parlor-writeup/search.cpp">search.cpp</a></li>
+<li><a href="http://blog.ztrix.me/downloads/code/plaidctf-2014-parlor-writeup/even.cpp">even.cpp</a></li>
 </ul>
 
 ]]></content>
