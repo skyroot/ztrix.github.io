@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Bctf | From Zero To X]]></title>
   <link href="http://blog.ztrix.me/blog/categories/bctf/atom.xml" rel="self"/>
   <link href="http://blog.ztrix.me/"/>
-  <updated>2014-05-07T11:43:19+08:00</updated>
+  <updated>2014-05-07T19:55:52+08:00</updated>
   <id>http://blog.ztrix.me/</id>
   <author>
     <name><![CDATA[zTrix]]></name>
@@ -20,7 +20,7 @@
     <id>http://blog.ztrix.me/blog/2014/05/07/bctf-secret-guard</id>
     <content type="html"><![CDATA[<p>by <code>zTrix@blue-lotus</code></p>
 
-<p>secret-guard 作为 BCTF 2014 决赛中最简单的一道 binary 题目，设计目标为，能够在放出后 4 个小时左右被各队逐渐解出，达到一波得分高潮。漏洞设置方面，设置了 3 个不同类型的简单漏洞，分别属于信息泄露、栈溢出和命令注入，期望是各个队伍发现不同的漏洞，达到互有攻防，反复抢占阵地的激烈效果。</p>
+<p><a href="/downloads/secret-guard.7594d1be5c8e9a13c98676c6b516f5ce">secret-guard</a> 作为 BCTF 2014 决赛中最简单的一道 binary 题目，设计目标为，能够在放出后 4 个小时左右被各队逐渐解出，达到一波得分高潮。漏洞设置方面，设置了 3 个不同类型的简单漏洞，分别属于信息泄露、栈溢出和命令注入，期望是各个队伍发现不同的漏洞，达到互有攻防，反复抢占阵地的激烈效果。</p>
 
 <p>根据比赛的实际情况来看，题目足够简单，作为最简单的 binary 题目，4 个小时内被解出的目标完成了，但是没有想到的是，在很长的一段时间内，只有 HITCON 217 一个队伍解出这道简单题目，并且只利用了其中命令注入的最简单漏洞。赛后的交流得知，开始时很多人以为每个题目只有一个漏洞，于是找到漏洞之后，就去看别的题目了，没有再仔细研究这个题目。另外，不知道是由于此题攻击流量分析较为困难还是各个队伍经验较少的原因，所有其他队伍一直处于被打状态而没有及时修补，导致得分差距太大，所以总体感觉甚为惋惜，花费心思设置的各个漏洞和坑点大家都没有遇到，也没有达到预期的效果。</p>
 
@@ -298,6 +298,8 @@ return flag
 <li>另外，ROP chain 的构造中，还有设置 AL 寄存器为 0 的坑，这个不是故意设计的，而是 ABI 方面的坑</li>
 </ul>
 
+
+<p><a href="/downloads/secret-guard.7594d1be5c8e9a13c98676c6b516f5ce">题目文件下载</a></p>
 ]]></content>
   </entry>
   
