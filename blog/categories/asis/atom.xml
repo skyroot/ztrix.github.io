@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Asis | From Zero To X]]></title>
   <link href="http://blog.ztrix.me/blog/categories/asis/atom.xml" rel="self"/>
   <link href="http://blog.ztrix.me/"/>
-  <updated>2014-05-10T23:49:51+08:00</updated>
+  <updated>2014-05-11T01:02:27+08:00</updated>
   <id>http://blog.ztrix.me/</id>
   <author>
     <name><![CDATA[zTrix]]></name>
@@ -18,7 +18,7 @@
     <link href="http://blog.ztrix.me/blog/2014/05/10/asis-quals-2014-serial-number-writeup/"/>
     <updated>2014-05-10T23:09:41+08:00</updated>
     <id>http://blog.ztrix.me/blog/2014/05/10/asis-quals-2014-serial-number-writeup</id>
-    <content type="html"><![CDATA[<p>by <code>zTrix@blue-lotus</code></p>
+    <content type="html"><![CDATA[<p>by Wenlei Zhu (zTrix@blue-lotus)</p>
 
 <p>Again, another ELF x86_64 binary with very long bit operation logic asking for some serial number.</p>
 
