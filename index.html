@@ -9,7 +9,7 @@
   <meta name="author" content="zTrix">
 
   
-  <meta name="description" content="by zTrix@blue-lotus secret-guard 作为 BCTF 2014 决赛中最简单的一道 binary 题目，设计目标为，能够在放出后 4 个小时左右被各队逐渐解出，达到一波得分高潮。漏洞设置方面，设置了 3 个不同类型的简单漏洞，分别属于信息泄露、栈溢出和命令注入， &hellip;">
+  <meta name="description" content="by zTrix@blue-lotus Again, another ELF x86_64 binary with very long bit operation logic asking for some serial number. I can still remember the time &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -78,6 +78,55 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/05/10/asis-quals-2014-serial-number-writeup/">The Power of PEDA - ASIS CTF Quals 2014 Serial Number Writeup</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+<time datetime="2014-05-10T23:09:41+08:00" pubdate data-updated="true">2014-05-10</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>by <code>zTrix@blue-lotus</code></p>
+
+<p>Again, another ELF x86_64 binary with very long bit operation logic asking for some serial number.</p>
+
+<p>I can still remember the time <a href="http://blog.ztrix.me/blog/2014/01/29/phdays-quals-2014-turututu/">trying to solve Turututu</a>, during which I spent a lot of time trying to figure out what happened under the instructions, but sadly with no luck, it&rsquo;s totally a mess. The lucky thing is that <a href="http://github.com/longld/peda">peda</a> is really a powerful tool, and I can guess the hidden logic with the help of <a href="http://github.com/longld/peda">peda</a>, so I finally solved Turututu.</p>
+
+<p>So let&rsquo;s show what a powerful tool <a href="http://github.com/longld/peda">peda</a> is by solving this challenge without figuring out that long bit operation logic(over 1 thousand lines of asm code!).</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/05/10/asis-quals-2014-serial-number-writeup/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -576,6 +625,10 @@ weird_shark.pcap_f5f1e42dd398f18c43af89ba972b3ee7: pcap-ng capture file - versio
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/05/10/asis-quals-2014-serial-number-writeup/">The Power of PEDA - ASIS CTF Quals 2014 Serial Number Writeup</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/05/07/bctf-secret-guard/">BCTF 2014 决赛题 - Secret Guard 回顾与分析</a>
       </li>
     
@@ -589,10 +642,6 @@ weird_shark.pcap_f5f1e42dd398f18c43af89ba972b3ee7: pcap-ng capture file - versio
     
       <li class="post">
         <a href="/blog/2014/03/29/star-and-thank-author-license/">Let&#8217;s Make License Social! The Star and Thank Author License (SATA License)</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/02/25/codegate-2014-weirdshark-writeup/">Codegate CTF 2014 Quals - Weirdshark Writeup</a>
       </li>
     
   </ul>

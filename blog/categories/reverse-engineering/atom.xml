@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Reverse Engineering | From Zero To X]]></title>
   <link href="http://blog.ztrix.me/blog/categories/reverse-engineering/atom.xml" rel="self"/>
   <link href="http://blog.ztrix.me/"/>
-  <updated>2014-05-07T19:55:52+08:00</updated>
+  <updated>2014-05-10T23:49:51+08:00</updated>
   <id>http://blog.ztrix.me/</id>
   <author>
     <name><![CDATA[zTrix]]></name>
@@ -12,6 +12,126 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[The Power of PEDA - ASIS CTF Quals 2014 Serial Number Writeup]]></title>
+    <link href="http://blog.ztrix.me/blog/2014/05/10/asis-quals-2014-serial-number-writeup/"/>
+    <updated>2014-05-10T23:09:41+08:00</updated>
+    <id>http://blog.ztrix.me/blog/2014/05/10/asis-quals-2014-serial-number-writeup</id>
+    <content type="html"><![CDATA[<p>by <code>zTrix@blue-lotus</code></p>
+
+<p>Again, another ELF x86_64 binary with very long bit operation logic asking for some serial number.</p>
+
+<p>I can still remember the time <a href="http://blog.ztrix.me/blog/2014/01/29/phdays-quals-2014-turututu/">trying to solve Turututu</a>, during which I spent a lot of time trying to figure out what happened under the instructions, but sadly with no luck, it&rsquo;s totally a mess. The lucky thing is that <a href="http://github.com/longld/peda">peda</a> is really a powerful tool, and I can guess the hidden logic with the help of <a href="http://github.com/longld/peda">peda</a>, so I finally solved Turututu.</p>
+
+<p>So let&rsquo;s show what a powerful tool <a href="http://github.com/longld/peda">peda</a> is by solving this challenge without figuring out that long bit operation logic(over 1 thousand lines of asm code!).</p>
+
+<!-- more -->
+
+
+<p>First, it&rsquo;s easy to understand the overall logic. Here is the pseudocode(python-like).</p>
+
+<pre><code>serial_number = some_8_bytes_integer
+state = 0   # four bit state
+correct_serial = 0
+
+while serial_number &gt; 0:
+    nibble = serial_number &amp; 0xf
+    serial_number = serial_number &gt;&gt; 4
+    correct_serial = nibble == 0xd &amp;&amp; state == 0xd
+    state = some_very_long_logic_over_a_thousand_lines_of_asm(nibble, state)
+
+if correct_serial:
+    print 'Congratulations!'
+</code></pre>
+
+<p>Here, nibble and state are both 4 bit variables. So no matter what the <code>some_very_long_logic_over_a_thousand_lines_of_asm</code> function is, there is only <code>16 x 16 = 256</code> possibilities. Just brute-force them all using <a href="http://github.com/longld/peda">peda</a>!</p>
+
+<p>So I wrote the following <a href="http://github.com/longld/peda">peda</a> helper function, by setting breakpoint at end of <code>some_very_long_logic_over_a_thousand_lines_of_asm</code> and using <code>set $rip=0x400788</code>, we can run that piece of code multiple times.</p>
+
+<p>```python
+def god(self, *arg):</p>
+
+<pre><code>"""
+god mode
+"""
+msg('god mode')
+rbp = peda.getreg('rbp')
+array_pointers = peda.read_int(rbp-0x28, 8)
+
+def get_state():
+    ret = []
+    for i in range(4):
+        pointer = peda.read_int(array_pointers + i * 8, 8)
+        ret.append(peda.read_int(pointer + 4, 4))
+    return ret
+
+def set_state(state):
+    for i in range(4):
+        pointer = peda.read_int(array_pointers + i * 8, 8)
+        peda.write_int(pointer + 4, state[i], 4)
+
+def check_one(t, init):
+    peda.write_int(rbp-0x68, t, 1)
+    peda.execute('set $rip=0x400788')
+
+    # msg('extracted = %d%d%d%d, remain = %x' % (peda.read_int(rbp-0x44, 4), peda.read_int(rbp-0x48, 4), peda.read_int(rbp-0x4c, 4), peda.read_int(rbp-0x50, 4), peda.read_int(rbp-0x68, 8)))
+
+    set_state(init)
+    peda.execute('continue')
+    state2 = get_state()
+
+    return state2
+
+final = []
+for i in range(16):
+    init = [i &amp; 1, (i &gt;&gt; 1) &amp; 1, (i&gt;&gt;2) &amp; 1, (i&gt;&gt;3) &amp; 1]
+    for j in range(16):
+        rs = check_one(j, init)
+        msg('%x: %s -&gt; %s' % (j, init, rs))
+        final.append((j, init, rs))
+
+msg('%s' % final)
+return
+</code></pre>
+
+<p>```</p>
+
+<p>So, the only thing left is <code>gdb -x gdb.x</code>, here it is.</p>
+
+<pre><code>file serial-number
+b *0x4014d8
+b *0x40149c
+run
+</code></pre>
+
+<p>Then use god mode to brute force.</p>
+
+<p>After brute force and a little processing, we can get the following jump table</p>
+
+<pre><code>0 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0]
+1 [0, 0, 0, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+2 [0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+3 [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3]
+4 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12]
+5 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 13, 0, 0, 0, 0, 0]
+6 [0, 0, 0, 0, 0, 14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+7 [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7]
+8 [0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0]
+9 [0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+10 [0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+11 [11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11]
+12 [0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0]
+13 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+14 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]
+15 [15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15]
+</code></pre>
+
+<p>So the serial number is <code>da34c5217f9d</code>.</p>
+
+<p>Can you feel the power of <a href="http://github.com/longld/peda">peda</a> tonight?</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[PHDays CTF IV Quals 2014 - Turututu Writeup]]></title>
