@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Writeup | From Zero To X]]></title>
   <link href="http://blog.ztrix.me/blog/categories/writeup/atom.xml" rel="self"/>
   <link href="http://blog.ztrix.me/"/>
-  <updated>2014-05-11T01:02:27+08:00</updated>
+  <updated>2014-05-11T01:07:09+08:00</updated>
   <id>http://blog.ztrix.me/</id>
   <author>
     <name><![CDATA[zTrix]]></name>
@@ -138,7 +138,7 @@ run
     <link href="http://blog.ztrix.me/blog/2014/05/07/bctf-secret-guard/"/>
     <updated>2014-05-07T09:08:55+08:00</updated>
     <id>http://blog.ztrix.me/blog/2014/05/07/bctf-secret-guard</id>
-    <content type="html"><![CDATA[<p>by <code>zTrix@blue-lotus</code></p>
+    <content type="html"><![CDATA[<p>by Wenlei Zhu (zTrix@blue-lotus)</p>
 
 <p><a href="/downloads/secret-guard.7594d1be5c8e9a13c98676c6b516f5ce">secret-guard</a> 作为 BCTF 2014 决赛中最简单的一道 binary 题目，设计目标为，能够在放出后 4 个小时左右被各队逐渐解出，达到一波得分高潮。漏洞设置方面，设置了 3 个不同类型的简单漏洞，分别属于信息泄露、栈溢出和命令注入，期望是各个队伍发现不同的漏洞，达到互有攻防，反复抢占阵地的激烈效果。</p>
 
@@ -428,7 +428,7 @@ return flag
     <link href="http://blog.ztrix.me/blog/2014/04/14/plaidctf-2014-parlor-writeup/"/>
     <updated>2014-04-14T21:12:55+08:00</updated>
     <id>http://blog.ztrix.me/blog/2014/04/14/plaidctf-2014-parlor-writeup</id>
-    <content type="html"><![CDATA[<p>by <code>zTrix@blue-lotus</code></p>
+    <content type="html"><![CDATA[<p>by Wenlei Zhu (zTrix@blue-lotus)</p>
 
 <p>Problem description</p>
 
@@ -713,7 +713,7 @@ figure out a way to beat the house? The service is running at 54.197.195.247:432
     <link href="http://blog.ztrix.me/blog/2014/02/25/codegate-2014-weirdshark-writeup/"/>
     <updated>2014-02-25T01:51:55+08:00</updated>
     <id>http://blog.ztrix.me/blog/2014/02/25/codegate-2014-weirdshark-writeup</id>
-    <content type="html"><![CDATA[<p>by <code>zTrix@blue-lotus</code></p>
+    <content type="html"><![CDATA[<p>by Wenlei Zhu (zTrix@blue-lotus)</p>
 
 <p>A pcap file is given here for analysis. check type using <code>file</code></p>
 
@@ -791,7 +791,7 @@ GET /grayhash.jpg HTTP/1.1
     <link href="http://blog.ztrix.me/blog/2014/01/29/phdays-quals-2014-turututu/"/>
     <updated>2014-01-29T11:13:35+08:00</updated>
     <id>http://blog.ztrix.me/blog/2014/01/29/phdays-quals-2014-turututu</id>
-    <content type="html"><![CDATA[<p>by <code>zTrix@blue-lotus</code></p>
+    <content type="html"><![CDATA[<p>by Wenlei Zhu (zTrix@blue-lotus)</p>
 
 <p>turututu is an ELF 64-bit executable, after some investigation, it&rsquo;s easy to find out that the task.exe is a native binary generated using <code>ocamlopt</code>.</p>
 

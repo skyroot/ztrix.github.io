@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Pcap | From Zero To X]]></title>
   <link href="http://blog.ztrix.me/blog/categories/pcap/atom.xml" rel="self"/>
   <link href="http://blog.ztrix.me/"/>
-  <updated>2014-05-11T01:02:27+08:00</updated>
+  <updated>2014-05-11T01:07:09+08:00</updated>
   <id>http://blog.ztrix.me/</id>
   <author>
     <name><![CDATA[zTrix]]></name>
@@ -18,7 +18,7 @@
     <link href="http://blog.ztrix.me/blog/2014/02/25/codegate-2014-weirdshark-writeup/"/>
     <updated>2014-02-25T01:51:55+08:00</updated>
     <id>http://blog.ztrix.me/blog/2014/02/25/codegate-2014-weirdshark-writeup</id>
-    <content type="html"><![CDATA[<p>by <code>zTrix@blue-lotus</code></p>
+    <content type="html"><![CDATA[<p>by Wenlei Zhu (zTrix@blue-lotus)</p>
 
 <p>A pcap file is given here for analysis. check type using <code>file</code></p>
 
