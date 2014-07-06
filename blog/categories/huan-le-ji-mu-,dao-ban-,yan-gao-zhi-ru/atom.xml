@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: 欢乐积木，盗版，广告植入 | From Zero To X]]></title>
+  <link href="http://blog.ztrix.me/blog/categories/huan-le-ji-mu-,dao-ban-,yan-gao-zhi-ru/atom.xml" rel="self"/>
+  <link href="http://blog.ztrix.me/"/>
+  <updated>2014-07-07T02:36:02+08:00</updated>
+  <id>http://blog.ztrix.me/</id>
+  <author>
+    <name><![CDATA[zTrix]]></name>
+    <email><![CDATA[i@ztrix.me]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[欢乐积木盗版应用分析]]></title>
+    <link href="http://blog.ztrix.me/blog/2014/07/07/joystacker-pirated-analysis/"/>
+    <updated>2014-07-07T01:05:52+08:00</updated>
+    <id>http://blog.ztrix.me/blog/2014/07/07/joystacker-pirated-analysis</id>
+    <content type="html"><![CDATA[<p>前面一篇日志提到，我们的游戏欢乐积木刚刚在国内安卓市场上线一天，立刻就被盗版重打包做了植入，这篇日志就来分析一下，盗版应用究竟做了什么改动。</p>
+
+<p>总共发现了至少 5 个不同的盗版打包，其中包名为 <code>com.rayxyj.stacker</code> 的盗版上线最早，下载量和用户使用都最大，因此就拿这个盗版版本开刀。</p>
+
+<p>这家盗版在多个市场都有投放，比如 <a href="http://www.wandoujia.com/apps/com.rayxyj.stacker">http://www.wandoujia.com/apps/com.rayxyj.stacker</a> 和 <a href="http://www.anzhuoapk.com/games-15-2/62640/">http://www.anzhuoapk.com/games-15-2/62640/</a> ，并且表明了开发者来源是掌赢科技有限公司，下载次数应该已经上千，在最近的数据统计中，使用的用户占比 12.25%，因此是一个比较典型的案例。</p>
+
+<p>这个盗版版本基于的是我的 1.4 版本重打包。后续我又发布了 1.6 版本，他们并没有跟进。</p>
+
+<!-- more -->
+
+
+<p>那么重打包发布的盗版积木究竟植入了什么东西呢？我们来一探究竟。</p>
+
+<h2>Manifest 文件</h2>
+
+<p>首先使用 <code>apktool</code> 来解包。</p>
+
+<p><code>bash
+apktool d 20140618190420_534.apk
+</code></p>
+
+<p>对比盗版的 AndroidManifest.xml 和我自己项目的 Manifest 文件，可以发现，盗版主要做了三项修改：</p>
+
+<ol>
+<li>修改包名</li>
+<li>增加 Android 各种权限申请</li>
+<li>增加植入的 Activity 和 Service</li>
+</ol>
+
+
+<h3>包名变化</h3>
+
+<p>首先包名发生了变化，由于各大市场都是用包名作为应用的唯一识别，因此必须改变包名才能重新发布不冲突。</p>
+
+<p>原有包名</p>
+
+<p><code>xml
+&lt;manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.rayx.stacker"&gt;
+</code></p>
+
+<p>盗版包名</p>
+
+<p><code>xml
+&lt;manifest android:versionCode="14" android:versionName="1.4" package="com.rayxyj.stacker"
+  xmlns:android="http://schemas.android.com/apk/res/android"&gt;
+</code></p>
+
+<h3>额外权限请求</h3>
+
+<p>权限方面，在原有权限的基础上，新增加了如下权限，注意其中的 <code>WAKE_LOCK</code>, <code>RESTART_PACKAGES</code>, <code>SYSTEM_ALERT_WINDOW</code>，这些权限都是明显的与应用功能不符合的权限要求，其中 <code>RESTART_PACKAGES</code> 权限在 API Level 8 之后，都已经被 Google 所放弃。</p>
+
+<p><code>xml
+&lt;uses-permission android:name="android.permission.INTERNET" /&gt;
+&lt;uses-permission android:name="android.permission.READ_PHONE_STATE" /&gt;
+&lt;uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /&gt;
+&lt;uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /&gt;
+&lt;uses-permission android:name="android.permission.ACCESS_WIFI_STATE" /&gt;
+&lt;uses-permission android:name="android.permission.WAKE_LOCK" /&gt;
+&lt;uses-permission android:name="android.permission.RESTART_PACKAGES" /&gt;
+&lt;uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" /&gt;
+</code></p>
+
+<h3>activity 与 service 植入</h3>
+
+<p>以下是植入的 Activity 和 Service</p>
+
+<p>```xml
+&lt;meta-data android:name=&ldquo;DX_EKYML_DIA&rdquo; android:value=&ldquo;07ac14f8dc0a4eb4a4facb4e48ea5cfa&rdquo; />
+<service android:name="com.android.mks.Ssreb" />
+<activity android:theme="@*android:style/Theme.NoTitleBar.Fullscreen" android:name="com.android.mks.Atcab" />
+<receiver android:name="com.android.mks.Bvreb"></p>
+
+<pre><code>&lt;intent-filter&gt;
+    &lt;action android:name="android.intent.action.USER_PRESENT" /&gt;
+&lt;/intent-filter&gt;
+&lt;intent-filter&gt;
+    &lt;action android:name="android.intent.action.PACKAGE_ADDED" /&gt;
+    &lt;data android:scheme="package" /&gt;
+&lt;/intent-filter&gt;
+</code></pre>
+
+<p></receiver>
+```</p>
+
+<p>可以看出，盗版游戏植入了一个名字极具隐蔽性的 package <code>com.android.mks</code>，如果不仔细看还以为是 Android 自带的系统 package，同时它接受系统的 <code>USER_PRESENT</code> 和 <code>PACKAGE_ADDED</code> 消息，分别代表用户解锁屏幕事件和用户安装了新应用事件。另外，AndroidManifest 中还植入了一个 <code>meta-data</code>，后面的分析可以知道，它是一个广告平台的 App key。</p>
+
+<h2>植入代码分析</h2>
+
+<p>植入代码是经过混淆的，主要代码在 <code>com.android.mks</code> 包下面。</p>
+
+<p>经过检查发现，原来积木的代码基础上，并没有进行直接的代码插入和改写，完全保持了原样，但是如果不修改原有代码的逻辑，如何让插入代码可以执行呢？注意 <code>AndroidManifest</code> 文件里面注册的 BroadcastReceiver，由于注册了两个系统消息(<code>USER_PRESENT</code> 和 <code>PACKAGE_ADDED</code>) 的监听接受，它实际上已经可以不注入任何额外代码就能运行，只需要等用户解锁屏幕即可运行，因此是非常聪明的一种做法，另外，它还注册了对用户安装新应用的事件监听，增加自己代码被唤醒的机会。</p>
+
+<p>再考虑到盗版发布的速度，可以推测，这很有可能是已经成形的自动植入方案，直接解包，插入 <code>com.android.mks</code> 包和 AndroidManifest 相关配置，无需人工分析原有代码，编写一个自动化工具即可搞定。如果要在原有代码上进行植入，反而需要人工分析原有逻辑，找到最佳植入点，不利于快速重打包，对不同应用来说还需要进行不同的分析，很难做到“产业化”和“规模化”。</p>
+
+<p>想到这里不禁感到一阵心寒，盗版产业虽然平时看不到，但是管中窥豹，这点小细节基本就能看出这个产业也是十分自动化和健全的，甚至可能是一套完整的自动化机制，自动寻找新上线的目标应用，自动下载，自动重打包，自动再上传，全程无人工干预，自动进行。</p>
+
+<p>继续分析代码。一个很奇怪的现象是，几乎所有的用到字符串的地方，都是用字符数组的形式来做的，比如，在 <code>u/A.class</code> 中，发现了如下常量</p>
+
+<p><code>java
+public static String a = new String(new byte[] { 104, 116, 116, 112, 58, 47, 47, 108, 101, 109, 105, 108, 111, 99, 107, 46, 99, 111, 109, 58, 56, 55, 56, 48, 47, 112, 117, 115, 104, 47, 104, 116, 109, 108, 47, 112, 117, 115, 104, 76, 105, 115, 116, 46, 106, 115, 112 });
+</code></p>
+
+<p>将它转化为字符串，得到 <code>http://lemilock.com:8780/push/html/pushList.jsp</code>，打开这个网站，可以看到是一家小型 Android 广告平台，这个链接是它的广告推送列表。</p>
+
+<p>由此可以确定这个重打包主要目的是插入广告。</p>
+
+<p>那么这个乐米广告平台到底是怎样的一个平台呢？为什么字符串要全部用这种不直观的形式来使用呢？注册一个账号试试。</p>
+
+<p>首先看到平台简介</p>
+
+<p><code>
+平台简介
+乐米平台是德信软件科技有限公司（以下简称“德信”）旗下的平台，德信是一家致力于android开发的公司。乐米平台目前主要从事android广告创新和研发。我们广告平台包含弹窗广告、插屏广告、新版推送广告模式！
+</code></p>
+
+<p>找到他的 SDK 下载，<a href="http://lemilock.com/lemi/developers.jsp">http://lemilock.com/lemi/developers.jsp</a> 页面，其“先进特性”让人惊呆</p>
+
+<ul>
+<li>开发者使用乐米广告后，各大平台不会检测出广告，100% 通过率保证</li>
+<li>用户使用过程中不会被安全软件拦截，不会被各种去广告软件检测</li>
+<li>最重要的，它甚至可以自定义包名，Activity 名，Service 名，甚至 appid 的 key 都可以自由指定</li>
+</ul>
+
+
+<p>这里放个截图</p>
+
+<p><img src="/images/joystacker-pirated/lemi.png" alt="乐米" /></p>
+
+<p>果然是一家为了流氓广告应用考虑十分周到的广告平台，而且，这些先进特性也不是随便吹的，我们可以去市场上看看</p>
+
+<p><img src="/images/joystacker-pirated/wandoujia.jpg" alt="豌豆荚" /></p>
+
+<p><img src="/images/joystacker-pirated/yiyonghui.jpg" alt="易用汇" /></p>
+
+<p>两家市场都被轻易骗过，乐米广告果然是盗版之友。</p>
+
+<p>现在差不多明白了，这些字符串写成这种形式，包名任意定制等特性，就是为了绕过各大安卓市场的广告检查，最终显示给用户一个“绿色、无广告、无病毒”的好应用形象。</p>
+
+<p>于是，下载一个乐米 SDK 并和植入的代码进行对比，经过分析发现，基本就是乐米的 SDK，并没有发现其他代码。简单分析可以知道，乐米 SDK 所做的事情就是，在被 <code>USER_PRESENT</code> 或 <code>PACKAGE_ADDED</code> 系统消息唤醒之后，它会尝试开启自己的后台 service，后台 service 会去请求广告，下载广告数据，然后在一定的时间条件下显示广告，诱惑用户点击，自动下载应用，显示系统消息，检测广告应用的安装情况等。</p>
+
+<p>那么，除了广告之外，还有没有其他恶意行为呢？比如偷偷上传通讯录什么的？经过分析发现，没有找到相关恶意代码，没有申请相关权限，也没有看到相关流量，基本排除存在这些恶意行为的可能。</p>
+
+<h2>真机测试</h2>
+
+<p>根据前面的分析，植入广告后得盗版应用植入了广告，并且初步分析并没有恶意代码行为，因此我勇敢的用了自己的手机来做小白鼠实验，进行真机测试。</p>
+
+<p>首先卸载我的正版应用，装上盗版，简单的进入界面，然后关闭屏幕，然后点亮屏幕，解锁，反复多次之后，终于看到了广告加载了出来。</p>
+
+<p><img src="/images/joystacker-pirated/test_pop.png" alt="pop" /></p>
+
+<p>这个广告弹窗十分高级，可以在屏幕内任意拖动。点击下载玩玩，没有弹出提示，真的立刻就下载了。点击详情介绍，会弹出它注册的 Activity</p>
+
+<p><img src="/images/joystacker-pirated/test_detail.png" alt="app detail" /></p>
+
+<p>然后下载了之后就提示安装</p>
+
+<p><img src="/images/joystacker-pirated/test_install.png" alt="app install" /></p>
+
+<p>流氓软件下载来的肯定也不是好应用，这个打飞机游戏居然还要发短信、查看短信、编辑短信，莫非是一个吸费应用？看到这不敢装了，直接取消安装。</p>
+
+<p>过了一会，发现系统通知栏有动静，打开一看，广告平台又弹出了新应用推荐通知</p>
+
+<p><img src="/images/joystacker-pirated/test_noti.png" alt="android notification" /></p>
+
+<p>校花校草，帅哥美女！关键词吸引我点击了一下，</p>
+
+<p><img src="/images/joystacker-pirated/test_detail2.png" alt="app detail2" /></p>
+
+<p>果然又是一个吸引宅男屌丝用户的应用，点击下载，这个权限要求更可怕，要求收短信、录音、拍照、读写通话记录、还有修改联系人！</p>
+
+<p><img src="/images/joystacker-pirated/test_install2.png" alt="app install" /></p>
+
+<p>虽然图里面的那个妹子还挺清纯可爱的，但是看到这也不得不忍痛取消了，这权限简直是要管理手机的节奏啊。</p>
+
+<h2>植入的其他资源文件分析</h2>
+
+<p>重打包的 apk 文件中，在 assets 目录下植入了一个 <code>res_pro.png</code> 的文件，虽然带着 .png 的扩展名，但是实质上是一个 zip 文件。解压之后，得到了几个图片文件，看起来应该也是广告平台的资源文件。</p>
+
+<h1>总结</h1>
+
+<p>经过以上的初步分析，现在基本弄清楚了盗版重打包的思路。可怕的地方不在于盗版应用有能力做重打包和代码植入，而在于他们的自动化和产业化，快速盗版，快速上线，一个应用也许赚不到多少钱，但是盗版形成规模之后，收入还是很可观的。</p>
+
+<p>第二个可怕之处在于像乐米这样的广告平台，本身就是一个盗版应用集散地，同时也为盗版应用提供技术支持，形成了盗版利益链条中的中间重要一环。我不知道还有多少像乐米这样的广告平台，因为在 Google 搜索乐米，甚至都在前面得不到搜索结果，但我知道，一个链条的形成和运转必然不会只有一个中枢，一定有一批像乐米的平台处于其中，分工明确，协作赚钱，最终，破坏的是市场，侵犯的是开发者的权益，受伤害的是最终用户。</p>
+
+<p>世界如此之大，我不能明白为什么只有中国的市场如此的混乱，3 年前的时候，我还年少，富有热情，而现在，即使有热情也会被这混乱不堪的市场局面所浇灭吧。</p>
+]]></content>
+  </entry>
+  
+</feed>
