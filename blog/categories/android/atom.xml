@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Android | From Zero To X]]></title>
   <link href="http://blog.ztrix.me/blog/categories/android/atom.xml" rel="self"/>
   <link href="http://blog.ztrix.me/"/>
-  <updated>2014-07-06T18:19:50+08:00</updated>
+  <updated>2014-07-06T18:21:46+08:00</updated>
   <id>http://blog.ztrix.me/</id>
   <author>
     <name><![CDATA[zTrix]]></name>
@@ -95,7 +95,7 @@
 
 <p>既然界面终于感觉能看了，我顿时又有了把游戏好好再重构一下，做一个足够质量的，可以放到市场给大家玩的版本的信念。</p>
 
-<p>由于一直都是抽空在做，这个过程是漫长得，断断续续做了很久。一种做东西就要做好的奇怪感觉充斥在我心里，我做了非常多的细节上的优化工作，从代码质量，到文件大小，到界面细节，我都做了力所能及的精细打磨。</p>
+<p>由于一直都是抽空在做，这个过程是漫长的，断断续续做了很久。一种做东西就要做好的奇怪感觉充斥在我心里，我做了非常多的细节上的优化工作，从代码质量，到文件大小，到界面细节，我都做了力所能及的精细打磨。</p>
 
 <p>后来我增加到了 100 个关卡，为此，我还专门制作了<a href="http://stackeditor.sinaapp.com/editor.html">关卡编辑器</a>，每个关卡的设计都经过精心的调试，保证趣味性和难度的统一（作为趣味游戏来说，其实是难度太高了，一般人真玩不动。。）。</p>
 
