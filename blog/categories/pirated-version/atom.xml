@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Pirated Version | From Zero To X]]></title>
   <link href="http://blog.ztrix.me/blog/categories/pirated-version/atom.xml" rel="self"/>
   <link href="http://blog.ztrix.me/"/>
-  <updated>2014-07-07T02:36:02+08:00</updated>
+  <updated>2014-07-07T10:37:35+08:00</updated>
   <id>http://blog.ztrix.me/</id>
   <author>
     <name><![CDATA[zTrix]]></name>
@@ -191,6 +191,12 @@ public static String a = new String(new byte[] { 104, 116, 116, 112, 58, 47, 47,
 <p><img src="/images/joystacker-pirated/test_install2.png" alt="app install" /></p>
 
 <p>虽然图里面的那个妹子还挺清纯可爱的，但是看到这也不得不忍痛取消了，这权限简直是要管理手机的节奏啊。</p>
+
+<p>连续点击返回，准备退出广告，结果发现，应用程序都退出了，广告弹窗居然仍然存在，看来弹窗并不是依附在程序界面中的。</p>
+
+<p><img src="/images/joystacker-pirated/still_exist.png" alt="still exist" /></p>
+
+<p>那如何才能退出这个广告弹窗呢？测试了半天，发现只有点击广告详情介绍，进入详情页面，然后再点击两次返回键，才能退出广告。流氓广告的特性展露了出来。</p>
 
 <h2>植入的其他资源文件分析</h2>
 
