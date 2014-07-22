@@ -1,0 +1,65 @@
+==================================================================
+https://keybase.io/ztrix
+--------------------------------------------------------------------
+
+I hereby claim:
+
+  * I am an admin of http://blog.ztrix.me
+  * I am ztrix (https://keybase.io/ztrix) on keybase.
+  * I have a public key with fingerprint 4BB0 95C6 27F5 76F4 1CD4  DFD1 9273 02AB 5BF2 2716
+
+To claim this, I am signing this object:
+
+{
+    "body": {
+        "key": {
+            "fingerprint": "4bb095c627f576f41cd4dfd1927302ab5bf22716",
+            "host": "keybase.io",
+            "key_id": "927302ab5bf22716",
+            "uid": "2f6c94e22fd2ce101424f16c0e291c00",
+            "username": "ztrix"
+        },
+        "service": {
+            "hostname": "blog.ztrix.me",
+            "protocol": "http:"
+        },
+        "type": "web_service_binding",
+        "version": 1
+    },
+    "ctime": 1406045781,
+    "expire_in": 157680000,
+    "prev": "61e35a18a0d4a77dab7c91f9f9786add20dd170aede527c1fe15ec0ad36f9a75",
+    "seqno": 4,
+    "tag": "signature"
+}
+
+with the aforementioned key, yielding the PGP signature:
+
+-----BEGIN PGP MESSAGE-----
+Version: GnuPG v1
+
+owFtkV1IFFEUx3dXK1wpFCIjpOiWlbKsc8f52FmJQAxMWxAtXwyWmbl31qFtZ5od
+dTfbHnwIs2zFUIrCUmPDRAvRB+nBEHzJj1owKXzIh9LMKD+C8MHsjthb9+Vwzvmd
+/znnnta9KTaHvS3s6KteO3nAPvF6RbJVTt+tbgCShqLA2wAu422jqKEANnRDDZnA
+CxhJogRW5mheYXlOYaCMGKQgKNB8AUWLEispNM1DDrhAjRa2KoiMJIaxW9VIjDh+
+FZHof/ja7QStcLLAYJpWEC1jSEGGZhTIyRSmBShTlAWGsRESr2BCXzMNNQJiLkBC
+daqMrYGtvjtpKagF3NuMm/guoBuaqclakKRqTFP3WpVmVLfQeiz5d0T8khpCZGtS
+UIeNsKqFgBcSUjZVSxUyFEcxLO+BLoAjumpgv2oR5D88FHlWG1xHJDmIC1gRekQK
+MSLPI1HiZQEqgiLwHk5EiKYQgjwlYoRZmpehgiGLZUpEBZwiiDwLrLWuhjTgZciY
+YoBIhtVASDRrDQxizlv27FSb3WHbvcthHc7mTMv4d07f4J4N+2LKgwunDnUeq4Th
+TldL8WZuQzqa69xo0rZGHs76dOcJ58LkvRuvZjqGy8azGtfdv/W88snIwSSXMXPk
+qW9ffjAxVZj5eaw2Zv8Q/9hzmikdr+qf7+LvJ/tK3utTVcttKS75fN7+2Y75op/N
+RRMvezeTmdHuwkZZzx51Dkwf7WrPWCxrX46/W/DC3unRHFdqy5nywei5ocEvU2+H
+e67H+/KPpzZtgdVHFcPxr5GhhcTtH0sjn8a4+mcvatKC6xdjq3fSl+jHevHG4YR9
+DuRkgcI1TU8UDfV/+5U78Ofsk7LUiZvdFZPffd2XSlt3P18JJtebSxwDbzI9Y8Vb
+fwE=
+=PI64
+-----END PGP MESSAGE-----
+
+And finally, I am proving ownership of this host by posting or
+appending to this document.
+
+View my publicly-auditable identity here: https://keybase.io/ztrix
+
+==================================================================
+
