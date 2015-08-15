@@ -1,0 +1,403 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>DEFCON 23 CTF 战记 - From Zero To X</title>
+  <meta name="author" content="zTrix">
+
+  
+  <meta name="description" content="DEFCON CTF 23 review">
+  <meta name="keywords" content="defcon,ctf,las vegas">
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://blog.ztrix.me/blog/2015/08/16/defcon-23">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/stylesheets/data-table.css" media="screen, projection" rel="stylesheet" type="text/css" />
+  <link href="/atom.xml" rel="alternate" title="From Zero To X" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-10996727-4']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">From Zero To X</a></h1>
+  
+    <h2>zTrix's Blog</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.ztrix.me" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">DEFCON 23 CTF 战记</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+<time datetime="2015-08-16T21:27:11+08:00" pubdate data-updated="true">2015-08-16</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>by Wenlei Zhu (zTrix@blue-lotus)</p>
+
+<p>又一年 DEFCON CTF 已经结束，最终成绩仍然没有完全公布，在这里先发一些赛场见闻和独家爆料。</p>
+
+<p>今年大部队分别在 8 月 3 日与 8 月 4 日两天出发，巧的是，我们 4 号部队在 UA888 航班又遇到了前去 blackhat 收集段子素材的教主 <a href="http://weibo.com/tombkeeper">tombkeeper</a>，于是在 3 号部队航班取消推迟一天的情况下，我们 4 号部队居然坐着由教主镇守的更稳的飞机提前到达。</p>
+
+<!-- more -->
+
+
+<p>7 号早上 10 点，所有队伍就位配置环境，依然是只给一根网线一根电源线。今年的准备终于是完全充分了，速度布线、配置 VLAN 999、配置 VPN，第一次在比赛开始前就完成了配置任务。自 所选的 VPN 方案、通信方案、文件共享方案工作良好，我们自己开发的几套工具也一切就绪。</p>
+
+<p>去年的平台就已经是 ARM 上使用 qemu 的多架构了，今年猜不到具体平台，但是估计一定也是多架构。接近 11 点的时候，终于可以访问 gamebox，gamebox 的架构是 x86-64。</p>
+
+<p>比赛的初始分数似乎是一个非常神奇的数字: 12033，不知道是如何计算出来的。</p>
+
+<p><img src="/images/defcon-23/game-start.png" alt="defcon 23 scoreboard" /></p>
+
+<p>首先放出来的第一题是 rxc。一道 x86-64 架构的 C++ 的题目，逻辑相当复杂，逆向工作极大，通信也是二进制协议，上手都不知道如何交互。</p>
+
+<p>于是所有队员都在艰难分析 rxc，进展缓慢。到了下午 14:57 分，也就是刚刚放出题目不到 4 个小时，DEFKOR 已经开打，主办方 announce 了 First Blood，DEFKOR against PPP，一个非常炫酷的 3D 动画效果。 现场惊呆了，按照正常功防比赛策略，第一个写出 0day 攻击的一般不打最强的对手，防止他们太快学习流量掌握 0day，而 DEFKOR 上来就毫不留情吊打两届 DEFCON 冠军 PPP，这是挑衅？（后来才想起来应该是因为 PPP 的 IP 是 1，他们可能只是按顺序打的）。</p>
+
+<p>于是接下来半天发生的事情基本上就是 DEFKOR 吊打各国选手。除了 HITCON 速度很快地写出 replay 之外，其他各队用了一整天的时间，在能看到 DEFKOR 流量的情况下，仍然写不出 exp 出来，只能眼睁睁的看着 DEFKOR 分数飙涨。</p>
+
+<p>第一天的分数变化趋势画出图是这样的（图片来自 maskray）：</p>
+
+<p><img src="/images/defcon-23/scoreboard-1.jpg" alt="defcon 23 scoreboard" /></p>
+
+<p>（如果去过 BCTF 或者 XCTF 决赛的话，大家会对这样的曲线图感到熟悉 23333333）。</p>
+
+<p>由于韩国队伍来自 Best Of Best 国家培养计划，我们都戏称这是韩国网军屠杀手无寸铁的各国业余爱好者。</p>
+
+<p>第一天还放出了 ombdsu、tachikoma 和 hearye，ombdsu 是一道 mips 的服务，tachikoma 是一道 i386 的服务，而 hearye 是一道 ARM64 的普通题目（非服务，做题得一次性分），主办方说 you should solve as soon as possible，我们没有在意，放到了第一天晚上去解，结果第二天写好 exp 准备提交的时候，发现主办方已经关闭了题目，说只允许第一天提交。损失不少分数。不得不吐槽主办方在这样的事情上过于模糊。</p>
+
+<p>第一晚的分析之后，我们写出了 rxc 的 exp，ombdsu 有 replay 和 exp 都可以用，三个服务都做了 patch，8 号早上一开，果然现场十分混乱，打成一片。</p>
+
+<p>第二天实际上并没有太多精彩的场面，大家能利用的东西都差不多，所以我觉得分差没有拉开。差距仅仅体现在有的队伍 exp 能多打几个，有的队伍服务修补的好少丢分上面。在各种努力之下，我们从第八名上升到了第六名，0ops 也在我们后面紧追不舍，超过了不少队伍。</p>
+
+<p>主办方第二天声称也是有像第一天 hearye 一样的 extra challenge 的，结果到了结束也没放，我们以为是跳票了，后来去问了一下才知道，原来只有第一天做出来 hearye 的队伍前 4 名才有姿格拿到这道 extra challenge。</p>
+
+<p>对于我们而言，第二天的 19 点 13 分到 19 点 31 分是最黑暗的时刻，原因是某个队友不慎踢掉了总电源，所有设备包括网关路由器在内全部掉电，损失了 3 轮的 FLAG，不知道造成了多少影响。此事需黑十年。</p>
+
+<p>第二天还放出了三道新服务，hackermud, irkd 和 badlogger，但是当天没有 0day 出现。</p>
+
+<p>终于到了 9 号，最后一天到了。一个晚上的分析早已经精疲力竭，虽然 hackermud 和 irkd 没有收获（甚至逆向都没完全完成，漏洞更不知在何处），好在我们有 ARM windows 10 题目 badlogger 的 exp 可以工作。</p>
+
+<p>到了现场主办方突然宣布最后一天的一轮时间改为 2.5 分钟，让第三天更有悬念。一开场又是 DEFKOR 的 badlogger first blood 3D 动画，我们比较着急，因为 badlogger 已经写好了，但是发现远程还是打不了。</p>
+
+<p>于是大家对 badlogger 的 exp 各种调试和优化，一直到邻近结束才终于打成，但是也仅仅只有十来个 flag 而已，非常遗憾。</p>
+
+<p>最终比赛在劲爆的 <a href="https://www.youtube.com/watch?v=9jK-NcRmVcw">The Final Countdown</a> 中结束，全场 high 翻。</p>
+
+<p>赛后的闭幕式宣布了前三名，DEFKOR 力压 PPP 夺冠，PPP 屈居亚军，0daysober 第三。</p>
+
+<p>爆几个料（都是江湖传言，不保证真实性）：</p>
+
+<ul>
+<li>关于 DEFKOR 江湖传说所有的题目和 exp 都是 lokihardt 一个人做的。lokihardt 在 pwn2own 一个人攻下了三大浏览器，可能觉得不过瘾，又来 DEFCON CTF 吊打。实际上仅仅第一天的 rxc 就领先了其他队伍 7000 多分，基本就奠定了冠军。</li>
+<li>PPP 实际上第二天就写出了 irkd 和 badlogger 的 exp，但是 badlogger 主办方一直在调试于是没有打成，irkd 更是悲惨，ricky 很早就写出了 exp，然后第三天 irkd 改 listen 在了 localhost，但是没人告诉 ricky 这件事情，他一直以为这题主办方还在调试。当比赛结束我们告诉他这件事情的时候，ricky 当着我们的面跳了起来，懊悔不已。</li>
+<li>比赛中间在电梯里面遇到 geohot 的时候，就听见他在那说，rxc 这题我花了一晚上才搞定，那个韩国人居然只用了 4 个小时就搞定了，太神奇了！ricky 在一旁附和表示赞同！他们出了电梯之后，电梯里面剩下的人笑了笑，说，他们都是疯子！</li>
+<li>HITCON 居然在 ombdsu 放出很久之后，不知道这道题目的存在。然而这比不过 0ops，0ops 一直到当天晚上回 hotel 分析都不知道这题的存在，直到从诸葛老师的微博上才知道有这道题目。23333333333</li>
+<li>dragon sector 和 0daysober 的通用防御都有点无耻了。我们的 exp 可以任意执行 shellcode 或者 ROP，可以读任意文件，就是读不了 flag 文件。不知道他们做了什么样的防御措施，我们只能从 /proc/pid/maps 里面看到一个 librxc.so，并且不能完全 dump 下来。</li>
+<li>主办方今年是第一次出 windows 题目，所以各个方面处理的相当不完善。中间 lbs 的人还跟我吐槽，说 You know that, because windows is &ldquo;awesome&rdquo;!</li>
+<li>明年 DEFCON 的主题是 The Rise of the Machines，会有 CGC 的决赛一起打。据说到时候会让人类冠军和机器冠军对打，上演人机大战！</li>
+</ul>
+
+
+<p>附 Lokihardt pwn2own 夺冠的采访视频：</p>
+
+<iframe src="http://player.youku.com/embed/XMTMwODc4MzcwNA==" frameborder="0" width="600px" height="500px" allowfullscreen=""></iframe>
+
+
+<p>注意一个主持人采访 Lokihardt 的时候，后面站着一个人，是 PPP 的队长 brian。</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">zTrix</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+<time datetime="2015-08-16T21:27:11+08:00" class="updated">Updated 2015-08-16</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/ctf/'>ctf</a>, <a class='category' href='/blog/categories/defcon/'>defcon</a>, <a class='category' href='/blog/categories/las-vegas/'>las vegas</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.ztrix.me/blog/2015/08/16/defcon-23/" data-via="_zTrix" data-counturl="http://blog.ztrix.me/blog/2015/08/16/defcon-23/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/08/20/defcon-22/" title="Previous Post: DEFCON 22 CTF 总结">&laquo; DEFCON 22 CTF 总结</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/08/16/defcon-23/">DEFCON 23 CTF 战记</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/08/20/defcon-22/">DEFCON 22 CTF 总结</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/07/07/joystacker-pirated-analysis/">欢乐积木盗版应用分析</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/07/06/joystacker-review/">积木的欢乐旅程</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/05/10/asis-quals-2014-serial-number-writeup/">The Power of PEDA - ASIS CTF Quals 2014 Serial Number Writeup</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/zTrix">@zTrix</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'zTrix',
+            count: 5,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/+wenleizhu?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+<section>
+  <h1>Friends' link</h1>
+  <ul>
+      <li>
+        <a href="http://blog.thinxer.com/">thinxer</a>
+      </li>
+      <li>
+        <a href="http://maskray.me">MaskRay</a>
+      </li>
+      <li>
+        <a href="http://leo-c.me/">Leo.C</a>
+      </li>
+      <li>
+        <a href="https://fqj.me/" title="fqj1994">fqj1994</a>
+      </li>
+  </ul>
+</section>
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - zTrix -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'ztrix-blog';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.ztrix.me/blog/2015/08/16/defcon-23/';
+        var disqus_url = 'http://blog.ztrix.me/blog/2015/08/16/defcon-23/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id; js.async = true;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
